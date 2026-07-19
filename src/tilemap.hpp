@@ -4,15 +4,12 @@
 #include <cstdint>
 #include <unordered_map>
 #include <glm/glm.hpp>
-#include <string>
 
 struct Tile {	
 	uint16_t tileId;
-	bool isWall = false;
 	bool canPush = false;
 
 	static std::unordered_map<uint16_t, glm::vec2> textureOffsets;
-	static std::unordered_map<std::string, uint16_t> nameToId;
 
 	// Default constructor - returns an empty tile
 	Tile();
@@ -23,7 +20,6 @@ struct Tile {
 	bool isEmpty() const;
 
 	static void initTextureOffsets();
-	static void initNameToId();
 	glm::vec2 getTexOffset() const;
 };
 
@@ -35,6 +31,9 @@ class TileMap {
 	// The width and height of the tile map
 	int width, height;
 public:
+	// Default constructor
+	TileMap();
+
 	/*
 	 * Creates an empty tile map with the top left and bottom right bounds given
 	 * lx, by: the coordinates of the bottom left corner (inclusive)

@@ -2,7 +2,6 @@
 #include <cassert>
 
 std::unordered_map<uint16_t, glm::vec2> Tile::textureOffsets;
-std::unordered_map<std::string, uint16_t> Tile::nameToId;
 
 Tile::Tile() {
 	tileId = 0;
@@ -16,12 +15,6 @@ bool Tile::isEmpty() const {
 	return tileId == 0;
 }
 
-void Tile::initNameToId() {
-	nameToId["brick_wall"] = 1;
-	nameToId["tile_floor"] = 2;
-	nameToId["crate"] = 3;
-}
-
 void Tile::initTextureOffsets() {
 	textureOffsets[1] = glm::vec2(1.0f, 0.0f);
 	textureOffsets[2] = glm::vec2(2.0f, 0.0f);
@@ -32,6 +25,13 @@ glm::vec2 Tile::getTexOffset() const {
 	if(!textureOffsets.count(tileId))
 		return glm::vec2(0.0f, 0.0f);
 	return textureOffsets.at(tileId);
+}
+
+TileMap::TileMap() {
+	leftx = 0;
+	bottomy = 0;
+	width = 0;
+	height = 0;
 }
 
 TileMap::TileMap(int lx, int by, int rx, int ty) {

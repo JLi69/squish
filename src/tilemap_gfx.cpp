@@ -1,5 +1,11 @@
 #include "tilemap_gfx.hpp"
 
+const float FLOOR_SHADING = 0.9f;
+const float FLOOR_WALL_SHADING = 0.75f;
+const float WALL_HEIGHT = 0.6f;
+const float WALL_TOP_SHADING = 0.75f;
+const float WALL_BOT_SHADING = 0.6f;
+
 int tileToChunkCoord(int coord) {
 	if(coord >= 0)
 		return coord / CHUNK_SIZE;
@@ -13,11 +19,11 @@ static void addTileQuadToBuffer(
 	float y,
 	float z,
 	float height,
-	Tile tile,
+	glm::vec2 texOffset,
 	float shadingTop,
 	float shadingBot
 ) {
-	glm::vec2 texBotLeft = tile.getTexOffset() + glm::vec2(0.01f, 0.01f);
+	glm::vec2 texBotLeft = texOffset + glm::vec2(0.01f, 0.01f);
 
 	mesh::addToMesh(vertexData.mesh, glm::vec3(x, y, z));
 	mesh::addToMesh(vertexData.mesh, texBotLeft);
@@ -36,39 +42,62 @@ static void addTileQuadToBuffer(
 	mesh::addToMesh(vertexData.mesh, shadingTop);
 }
 
-mesh::ElementArrayBuffer<float> getTilemapVertDataForChunk(
-	const TileMap &tilemap,
+mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
+	const Level &level,
 	int chunkx,
 	int chunky
 ) {
 	mesh::ElementArrayBuffer<float> vertexData;
 
-	unsigned int indices[] = {
+	const unsigned int indices[] = {
 		0, 1, 2,
 		1, 2, 3,
 	};
 
 	unsigned int quadcount = 0;
+	// Add floor
 	for(int tx = 0; tx < CHUNK_SIZE; tx++) {
 		for(int ty = 0; ty < CHUNK_SIZE; ty++) {
-			Tile tile = tilemap.getTile(tx + chunkx * CHUNK_SIZE, ty + chunky * CHUNK_SIZE);
+			int tilePosX = tx + chunkx * CHUNK_SIZE;
+			int tilePosY = ty + chunky * CHUNK_SIZE;
+			Tile tile = level.getFloorTile(tilePosX, tilePosY);
+			if(tile.isEmpty())
+				continue;
+			if(!level.getWallTile(tilePosX, tilePosY).isEmpty())
+				continue;
+
+			float x = float(tx);
+			float y = float(ty);
+			// Check the above tile to make sure that it is a wall, so that the
+			// floor tile can be shaded appropriately
+			Tile aboveTile = level.getWallTile(tilePosX, tilePosY + 1);
+			glm::vec2 texOffset = tile.getTexOffset();
+			if(!aboveTile.isEmpty())
+				addTileQuadToBuffer(vertexData, x, y, 1.0f, 1.0f, texOffset, FLOOR_WALL_SHADING, FLOOR_SHADING);
+			else
+				addTileQuadToBuffer(vertexData, x, y, 1.0f, 1.0f, texOffset, FLOOR_SHADING, FLOOR_SHADING);
+
+			for(int i = 0; i < 6; i++)
+				vertexData.indices.push_back(4 * quadcount + indices[i]);
+			quadcount++;
+		}
+	}
+
+	// Add walls
+	for(int tx = 0; tx < CHUNK_SIZE; tx++) {
+		for(int ty = 0; ty < CHUNK_SIZE; ty++) {
+			int tilePosX = tx + chunkx * CHUNK_SIZE;
+			int tilePosY = ty + chunky * CHUNK_SIZE;
+			Tile tile = level.getWallTile(tilePosX, tilePosY);
 			if(tile.isEmpty())
 				continue;
 
 			float x = float(tx);
 			float y = float(ty);
-			if(tile.isWall) {
-				float ycoord = y + float(chunky * CHUNK_SIZE);
-				float z = (ycoord - tilemap.getTopY()) / float(tilemap.getTopY() - tilemap.getBottomY());
-				addTileQuadToBuffer(vertexData, x, y, z, 0.6f, tile, 0.75f, 0.6f);
-			}
-			else {
-				Tile aboveTile = tilemap.getTile(tx + chunkx * CHUNK_SIZE, ty + chunky * CHUNK_SIZE + 1);
-				if(aboveTile.isWall)
-					addTileQuadToBuffer(vertexData, x, y, 1.0f, 1.0f, tile, 0.75f, 0.9f);
-				else
-					addTileQuadToBuffer(vertexData, x, y, 1.0f, 1.0f, tile, 0.9f, 0.9f);
-			}
+			float ycoord = y + float(chunky * CHUNK_SIZE);
+			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
+			glm::vec2 texOffset = tile.getTexOffset();
+			addTileQuadToBuffer(vertexData, x, y, z, WALL_HEIGHT, texOffset, WALL_TOP_SHADING, WALL_BOT_SHADING);
 			for(int i = 0; i < 6; i++)
 				vertexData.indices.push_back(4 * quadcount + indices[i]);
 			quadcount++;
@@ -77,18 +106,18 @@ mesh::ElementArrayBuffer<float> getTilemapVertDataForChunk(
 
 	for(int tx = 0; tx < CHUNK_SIZE; tx++) {
 		for(int ty = 0; ty < CHUNK_SIZE; ty++) {
-			Tile tile = tilemap.getTile(tx + chunkx * CHUNK_SIZE, ty + chunky * CHUNK_SIZE);
+			int tilePosX = tx + chunkx * CHUNK_SIZE;
+			int tilePosY = ty + chunky * CHUNK_SIZE;
+			Tile tile = level.getWallTile(tilePosX, tilePosY);
 			if(tile.isEmpty())
 				continue;
 
-			if(!tile.isWall)
-				continue;
-
 			float x = float(tx);
-			float y = float(ty) + 0.6f;
+			float y = float(ty) + WALL_HEIGHT;
 			float ycoord = float(ty) + float(chunky * CHUNK_SIZE);
-			float z = (ycoord - tilemap.getTopY()) / float(tilemap.getTopY() - tilemap.getBottomY());
-			addTileQuadToBuffer(vertexData, x, y, z, 1.0f, tile, 1.0f, 1.0f);
+			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
+			glm::vec2 texOffset = tile.getTexOffset();
+			addTileQuadToBuffer(vertexData, x, y, z, 1.0f, texOffset, 1.0f, 1.0f);
 			for(int i = 0; i < 6; i++)
 				vertexData.indices.push_back(4 * quadcount + indices[i]);
 			quadcount++;
@@ -98,21 +127,48 @@ mesh::ElementArrayBuffer<float> getTilemapVertDataForChunk(
 	return vertexData;
 }
 
-TileVaos getTileMapVaos(const TileMap &tilemap) {
+// Assumes buffers.size() >= 4
+static void levelDataToBuffers(
+	const std::vector<unsigned int> &buffers,
+	const mesh::ElementArrayBuffer<float> &vertices
+) {
+	// vertex positions
+	glBindBuffer(GL_ARRAY_BUFFER, buffers.at(0));	
+	glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
+	glEnableVertexAttribArray(0);
+	// texture offset
+	glBindBuffer(GL_ARRAY_BUFFER, buffers.at(1));
+	glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);	
+	glVertexAttribPointer(1, 2, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+	glEnableVertexAttribArray(1);
+	// shading
+	glBindBuffer(GL_ARRAY_BUFFER, buffers.at(2));	
+	glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);	
+	glVertexAttribPointer(2, 1, GL_FLOAT, false, 6 * sizeof(float), (void*)(5 * sizeof(float)));
+	glEnableVertexAttribArray(2);
+	// indices
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, buffers.at(3));
+	glBufferData(
+		GL_ELEMENT_ARRAY_BUFFER,
+		vertices.indices.size() * sizeof(unsigned int),
+		&vertices.indices[0],
+		GL_STATIC_DRAW
+	);
+}
+
+TileVaos getTileMapVaos(const Level &level) {
 	TileVaos tilevaos = TileVaos();
 
-	int startChunkX = tileToChunkCoord(tilemap.getLeftX());
-	int endChunkX = tileToChunkCoord(tilemap.getRightX());
-	int startChunkY = tileToChunkCoord(tilemap.getBottomY());
-	int endChunkY = tileToChunkCoord(tilemap.getTopY());
+	int startChunkX = tileToChunkCoord(level.getLeftX());
+	int endChunkX = tileToChunkCoord(level.getRightX());
+	int startChunkY = tileToChunkCoord(level.getBottomY());
+	int endChunkY = tileToChunkCoord(level.getTopY());
 
 	for(int chunkx = startChunkX; chunkx <= endChunkX; chunkx++) {
 		for(int chunky = startChunkY; chunky <= endChunkY; chunky++) {
-			mesh::ElementArrayBuffer<float> vertices = getTilemapVertDataForChunk(
-				tilemap,
-				chunkx,
-				chunky
-			);
+			mesh::ElementArrayBuffer<float> vertices 
+				= getLevelVertDataForChunk(level, chunkx, chunky);
 			// Ignore empty vertex chunks
 			if(vertices.mesh.vertices.empty())
 				continue;
@@ -122,29 +178,7 @@ TileVaos getTileMapVaos(const TileMap &tilemap) {
 			gfx::Vao vao;
 			vao.genBuffers(4);
 			glBindVertexArray(vao.vaoid);
-			// vertex positions
-			glBindBuffer(GL_ARRAY_BUFFER, vao.buffers.at(0));	
-			glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);
-			glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			// texture offset
-			glBindBuffer(GL_ARRAY_BUFFER, vao.buffers.at(1));
-			glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);	
-			glVertexAttribPointer(1, 2, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-			glEnableVertexAttribArray(1);
-			// shading
-			glBindBuffer(GL_ARRAY_BUFFER, vao.buffers.at(2));	
-			glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);	
-			glVertexAttribPointer(2, 1, GL_FLOAT, false, 6 * sizeof(float), (void*)(5 * sizeof(float)));
-			glEnableVertexAttribArray(2);
-			// indices
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao.buffers.at(3));
-			glBufferData(
-				GL_ELEMENT_ARRAY_BUFFER,
-				vertices.indices.size() * sizeof(unsigned int),
-				&vertices.indices[0],
-				GL_STATIC_DRAW
-			);
+			levelDataToBuffers(vao.buffers, vertices);
 			vao.vertcount = vertices.indices.size();
 			glBindVertexArray(0);
 
@@ -157,15 +191,12 @@ TileVaos getTileMapVaos(const TileMap &tilemap) {
 
 void updateTileMapVaos(
 	TileVaos &vaos,
-	const TileMap &tilemap,
+	const Level &level,
 	int chunkx,
 	int chunky
 ) {
-	mesh::ElementArrayBuffer<float> vertices = getTilemapVertDataForChunk(
-		tilemap,
-		chunkx,
-		chunky
-	);
+	mesh::ElementArrayBuffer<float> vertices 
+		= getLevelVertDataForChunk(level, chunkx, chunky);
 
 	// No vertices, and it doesn't exist in the vao list, ignore
 	if(vertices.mesh.vertices.empty() && !vaos.count({ chunkx, chunky }))
@@ -189,29 +220,7 @@ void updateTileMapVaos(
 	gfx::Vao &vao = vaos[{ chunkx, chunky }];	
 
 	glBindVertexArray(vao.vaoid);
-	// vertex positions
-	glBindBuffer(GL_ARRAY_BUFFER, vao.buffers.at(0));	
-	glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, false, 6 * sizeof(float), (void*)0);
-	glEnableVertexAttribArray(0);
-	// texture offset
-	glBindBuffer(GL_ARRAY_BUFFER, vao.buffers.at(1));
-	glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);	
-	glVertexAttribPointer(1, 2, GL_FLOAT, false, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
-	// shading
-	glBindBuffer(GL_ARRAY_BUFFER, vao.buffers.at(2));	
-	glBufferData(GL_ARRAY_BUFFER, vertices.mesh.size(), vertices.mesh.ptr(), GL_STATIC_DRAW);	
-	glVertexAttribPointer(2, 1, GL_FLOAT, false, 6 * sizeof(float), (void*)(5 * sizeof(float)));
-	glEnableVertexAttribArray(2);
-	// indices
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vao.buffers.at(3));
-	glBufferData(
-		GL_ELEMENT_ARRAY_BUFFER,
-		vertices.indices.size() * sizeof(unsigned int),
-		&vertices.indices[0],
-		GL_STATIC_DRAW
-	);
+	levelDataToBuffers(vao.buffers, vertices);
 	vao.vertcount = vertices.indices.size();
 	glBindVertexArray(0);
 }

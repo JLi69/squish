@@ -4,14 +4,14 @@
 #include <GLFW/glfw3.h>
 #include "gfx.hpp"
 #include "shader.hpp"
-#include "tilemap.hpp"
+#include "level.hpp"
 #include "app.hpp"
 #include "tilemap_gfx.hpp"
 
-bool canPush(const TileMap &tilemap, int x, int y, int dirx, int diry) {
-	if(!tilemap.getTile(x, y).canPush)
+bool canPush(const Level &level, int x, int y, int dirx, int diry) {
+	if(!level.getWallTile(x, y).canPush)
 		return false;
-	if(tilemap.getTile(x + dirx, y + diry).isWall)
+	if(!level.getWallTile(x + dirx, y + diry).isEmpty())
 		return false;
 	return true;
 }
@@ -20,35 +20,11 @@ int main() {
 	// Initialize the window
 	GLFWwindow *window = initWindow();
 
-	Tile::initNameToId();
 	Tile::initTextureOffsets();
 
-	TileMap tilemap(-8, -8, 8, 8);
-	// Test map
-	Tile wallTile = Tile(1);
-	wallTile.isWall = true;
-	Tile floorTile = Tile(2);
-	for(int x = -4; x <= 4; x++) {
-		for(int y = -4; y <= 4; y++) {
-			if((x >= -2 && x <= 0) && y == 2) {
-				tilemap.setTile(x, y, wallTile);
-				continue;
-			}
-			if(abs(x) == 4 || abs(y) == 4) {
-				tilemap.setTile(x, y, wallTile);
-				continue;
-			}
-			tilemap.setTile(x, y, floorTile);
-		}
-	}
-	tilemap.setTile(2, -2, wallTile);
+	Level testLevel = genTestLevel();
 	
-	Tile crateTile = Tile(3);
-	crateTile.isWall = true;
-	crateTile.canPush = true;
-	tilemap.setTile(-2, -2, crateTile);
-
-	TileVaos tileVaos = getTileMapVaos(tilemap);
+	TileVaos tileVaos = getTileMapVaos(testLevel);
 	gfx::Vao quadVao = gfx::createQuadVao();
 	// Shader
 	ShaderProgram tileShader(
@@ -97,11 +73,11 @@ int main() {
 
 		int dirx = playerx - prevx, 
 			diry = playery - prevy;
-		if(canPush(tilemap, playerx, playery, dirx, diry)) {
-			Tile tile = tilemap.getTile(playerx, playery);
+		if(canPush(testLevel, playerx, playery, dirx, diry)) {
+			Tile tile = testLevel.getWallTile(playerx, playery);
 			// Quick hack, probably should have seperate layers for walls/floors
-			tilemap.setTile(playerx, playery, floorTile);
-			tilemap.setTile(playerx + dirx, playery + diry, tile);
+			testLevel.setWallTile(playerx, playery, Tile());
+			testLevel.setWallTile(playerx + dirx, playery + diry, tile);
 			// Update tile map vaos
 			int chunkx = tileToChunkCoord(playerx);
 			int chunky = tileToChunkCoord(playery);
@@ -109,10 +85,10 @@ int main() {
 			// but I'm just hacking something together and this should work fine
 			for(int x = chunkx - 1; x <= chunkx + 1; x++)
 				for(int y = chunky - 1; y <= chunky + 1; y++)
-					updateTileMapVaos(tileVaos, tilemap, x, y);
+					updateTileMapVaos(tileVaos, testLevel, x, y);
 					
 		}
-		else if(tilemap.getTile(playerx, playery).isWall) {
+		else if(!testLevel.getWallTile(playerx, playery).isEmpty()) {
 			playerx = prevx;
 			playery = prevy;
 		}
@@ -157,7 +133,7 @@ int main() {
 		spriteShader.uniformBool("flipVert", flipPlayer);
 		spriteShader.uniformMat4x4("windowMat", windowMat);
 		float displayy = float(playery) + 0.4f;
-		float z = (displayy - tilemap.getTopY()) / float(tilemap.getTopY() - tilemap.getBottomY());
+		float z = (displayy - testLevel.getTopY()) / float(testLevel.getTopY() - testLevel.getBottomY());
 		glm::vec3 playerPos = glm::vec3(
 			float(playerx),
 			displayy,
