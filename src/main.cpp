@@ -3,10 +3,12 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 #include "gfx.hpp"
-#include "shader.hpp"
 #include "level.hpp"
 #include "app.hpp"
 #include "tilemap_gfx.hpp"
+#include "assets.hpp"
+#include "display.hpp"
+#include "game.hpp"
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry) {
 	if(!level.getWallTile(x, y).canPush)
@@ -21,34 +23,15 @@ int main() {
 	GLFWwindow *window = initWindow();
 
 	Tile::initTextureOffsets();
+	VAOS->genSimple();
+	// Setup shaders
+	SHADERS->importFromFile("assets/shaders.impfile");	
+	// Setup textures
+	TEXTURES->importFromFile("assets/textures.impfile");
 
 	Level testLevel = genTestLevel();
-	
+	Player player(0, 0);
 	TileVaos tileVaos = getTileMapVaos(testLevel);
-	gfx::Vao quadVao = gfx::createQuadVao();
-	// Shader
-	ShaderProgram tileShader(
-		"assets/shaders/tilemap_vert.glsl",
-		"assets/shaders/tilemap_frag.glsl"
-	);
-	ShaderProgram spriteShader(
-		"assets/shaders/sprite_vert.glsl",
-		"assets/shaders/sprite_frag.glsl"
-	);
-	ShaderProgram shadowShader(
-		"assets/shaders/sprite_vert.glsl",
-		"assets/shaders/shadow_frag.glsl"
-	);
-	// Texture
-	unsigned int tileTextures;
-	glGenTextures(1, &tileTextures);
-	gfx::loadTexture("assets/textures/tiles.png", tileTextures, true);
-	unsigned int playerTexture;
-	glGenTextures(1, &playerTexture);
-	gfx::loadTexture("assets/textures/player.png", playerTexture, true);
-
-	int playerx = 0, playery = 0;
-	bool flipPlayer = false;
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
@@ -56,31 +39,31 @@ int main() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	// Main loop
 	while(!glfwWindowShouldClose(window)) {
-		int prevx = playerx, prevy = playery;
+		int prevx = player.x, prevy = player.y;
 		// Move the player
 		if(getKeyInputState(GLFW_KEY_UP) == JUST_PRESSED)
-			playery++;
+			player.y++;
 		else if(getKeyInputState(GLFW_KEY_DOWN) == JUST_PRESSED)
-			playery--;
+			player.y--;
 		else if(getKeyInputState(GLFW_KEY_RIGHT) == JUST_PRESSED) {
-			flipPlayer = false;
-			playerx++;
+			player.sprite.flip = false;
+			player.x++;
 		}
 		else if(getKeyInputState(GLFW_KEY_LEFT) == JUST_PRESSED) {
-			flipPlayer = true;
-			playerx--;
+			player.sprite.flip = true;
+			player.x--;
 		}
 
-		int dirx = playerx - prevx, 
-			diry = playery - prevy;
-		if(canPush(testLevel, playerx, playery, dirx, diry)) {
-			Tile tile = testLevel.getWallTile(playerx, playery);
+		int dirx = player.x - prevx, 
+			diry = player.y - prevy;
+		if(canPush(testLevel, player.x, player.y, dirx, diry)) {
+			Tile tile = testLevel.getWallTile(player.x, player.y);
 			// Quick hack, probably should have seperate layers for walls/floors
-			testLevel.setWallTile(playerx, playery, Tile());
-			testLevel.setWallTile(playerx + dirx, playery + diry, tile);
+			testLevel.setWallTile(player.x, player.y, Tile());
+			testLevel.setWallTile(player.x + dirx, player.y + diry, tile);
 			// Update tile map vaos
-			int chunkx = tileToChunkCoord(playerx);
-			int chunky = tileToChunkCoord(playery);
+			int chunkx = tileToChunkCoord(player.x);
+			int chunky = tileToChunkCoord(player.y);
 			// Probably can be more efficient and not update so many vaos at once
 			// but I'm just hacking something together and this should work fine
 			for(int x = chunkx - 1; x <= chunkx + 1; x++)
@@ -88,63 +71,26 @@ int main() {
 					updateTileMapVaos(tileVaos, testLevel, x, y);
 					
 		}
-		else if(!testLevel.getWallTile(playerx, playery).isEmpty()) {
-			playerx = prevx;
-			playery = prevy;
+		else if(!testLevel.getWallTile(player.x, player.y).isEmpty()) {
+			player.x = prevx;
+			player.y = prevy;
 		}
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-		tileShader.use();
-		glBindTexture(GL_TEXTURE_2D, tileTextures);
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
-		glm::mat4 windowMat = calculateWindowMat(float(w), float(h), 0.175f);
-		tileShader.uniformMat4x4("windowMat", windowMat);
-		tileShader.uniformVec2("textureScale", glm::vec2(16.0f, 16.0f));
-		// Draw level
-		for(const auto &tileVao : tileVaos) {
-			const std::pair<int, int> &coords = tileVao.first;
-			const gfx::Vao &vao = tileVao.second;
-			vao.bind();
-			glm::vec2 offset(
-				float(coords.first * CHUNK_SIZE),
-				float(coords.second * CHUNK_SIZE)
-			);
-			tileShader.uniformVec2("offset", offset);
-			glDrawElements(GL_TRIANGLES, vao.vertcount, GL_UNSIGNED_INT, 0);
-		}
 
-		quadVao.bind();
-		glm::vec3 shadowPos = glm::vec3(
-			float(playerx),
-			float(playery) - 0.1f,
-			1.0f
-		);
-		shadowShader.use();
-		shadowShader.uniformMat4x4("windowMat", windowMat);
-		glm::mat4 shadowTransform = glm::mat4(1.0f);
-		shadowTransform = glm::translate(shadowTransform, shadowPos);
-		shadowTransform = glm::scale(shadowTransform, glm::vec3(1.4f, 0.7f, 1.0f));
-		spriteShader.uniformMat4x4("transform", shadowTransform);
-		glDrawElements(GL_TRIANGLES, quadVao.vertcount, GL_UNSIGNED_INT, 0);
+		// Clear screen
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		spriteShader.use();
-		spriteShader.uniformBool("flipVert", flipPlayer);
-		spriteShader.uniformMat4x4("windowMat", windowMat);
-		float displayy = float(playery) + 0.4f;
-		float z = (displayy - testLevel.getTopY()) / float(testLevel.getTopY() - testLevel.getBottomY());
-		glm::vec3 playerPos = glm::vec3(
-			float(playerx),
-			displayy,
-			z
-		);
-		glm::mat4 playerTransform = glm::mat4(1.0f);
-		playerTransform = glm::translate(playerTransform, playerPos);
-		playerTransform = glm::scale(playerTransform, glm::vec3(1.2f, 1.2f, 1.0f));
-		spriteShader.uniformMat4x4("transform", playerTransform);
-		glBindTexture(GL_TEXTURE_2D, playerTexture);
-		glDrawElements(GL_TRIANGLES, quadVao.vertcount, GL_UNSIGNED_INT, 0);	
+		// Display level
+		setupShader("tile_shader", w, h, DEFAULT_ZOOM);
+		displayLevel(tileVaos);
+
+		// Display player
+		setupShader("shadow_shader", w, h, DEFAULT_ZOOM);
+		setupShader("sprite_shader", w, h, DEFAULT_ZOOM);
+		glm::vec2 playerPos(float(player.x), float(player.y));
+		displaySprite(player.sprite, playerPos, testLevel);
 
 		updateInputStates();
 		glfwSwapBuffers(window);

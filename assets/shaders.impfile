@@ -1,0 +1,17 @@
+# Shader for a tile map
+"tile_shader" {
+	"vertex" = "assets/shaders/tilemap_vert.glsl";
+	"fragment" = "assets/shaders/tilemap_frag.glsl";
+}
+
+# Shader for a sprite
+"sprite_shader" {
+	"vertex" = "assets/shaders/sprite_vert.glsl";
+	"fragment" = "assets/shaders/sprite_frag.glsl";
+}
+
+# Shader for a shadow
+"shadow_shader" {
+	"vertex" = "assets/shaders/sprite_vert.glsl";
+	"fragment" = "assets/shaders/shadow_frag.glsl";
+}

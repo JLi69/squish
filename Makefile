@@ -2,7 +2,7 @@ SRC=$(wildcard src/*.cpp) $(wildcard src/*.c)
 HEADER=$(wildcard src/*.hpp) $(wildcard src/*.h)
 OBJ=$(SRC:%=%.o)
 CPP=c++
-BIN_NAME=tilemap_test
+BIN_NAME=squish
 INCLUDE=-Iinclude
 FLAGS=$(INCLUDE) -std=c++17 -O2
 LD_FLAGS=-lglfw3

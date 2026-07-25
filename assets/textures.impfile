@@ -1,0 +1,22 @@
+# This is a list of textures to be imported
+# Textures must have the following variables:
+# target - this is either 'texture2d' or 'cubemap'
+# if target is 'texture2d', the variables 'flip' and 'path'
+# must be defined ('flip' determines if the texture should
+# be flipped vertically and 'path' is the path to the
+# texture relative to the executable)
+# 
+# If the target is 'cubemap' then you must provide 6 paths:
+# east, west, up, down, north, south
+
+"tiles" {
+	"target" = "texture2d";
+	"path" = "assets/textures/tiles.png";
+	"flip" = "true";
+}
+
+"player" {
+	"target" = "texture2d";
+	"path" = "assets/textures/player.png";
+	"flip" = "true";
+}
