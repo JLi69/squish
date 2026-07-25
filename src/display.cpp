@@ -38,13 +38,15 @@ void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level) {
 	ShaderProgram &spriteShader = SHADERS->getShader("sprite_shader");
 	
 	// Display shadow
-	glm::vec3 shadowPos = glm::vec3(sprite.shadowOffset + pos, 1.0f);
-	shadowShader.use();
-	glm::mat4 shadowTransform = glm::mat4(1.0f);
-	shadowTransform = glm::translate(shadowTransform, shadowPos);
-	shadowTransform = glm::scale(shadowTransform, glm::vec3(sprite.shadowScale, 1.0f));
-	shadowShader.uniformMat4x4("transform", shadowTransform);
-	VAOS->draw();
+	if(sprite.drawShadow) {
+		glm::vec3 shadowPos = glm::vec3(sprite.shadowOffset + pos, 1.0f);
+		shadowShader.use();
+		glm::mat4 shadowTransform = glm::mat4(1.0f);
+		shadowTransform = glm::translate(shadowTransform, shadowPos);
+		shadowTransform = glm::scale(shadowTransform, glm::vec3(sprite.shadowScale, 1.0f));
+		shadowShader.uniformMat4x4("transform", shadowTransform);
+		VAOS->draw();
+	}
 
 	// Display the sprite
 	spriteShader.use();

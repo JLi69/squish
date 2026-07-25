@@ -2,6 +2,9 @@
 
 #include <string>
 #include <glm/glm.hpp>
+#include <stack>
+#include "level.hpp"
+#include "tilemap_gfx.hpp"
 
 struct Sprite {
 	std::string spriteTexId = "";
@@ -12,6 +15,7 @@ struct Sprite {
 	glm::vec2 shadowScale = glm::vec2(1.0f);
 	glm::vec2 shadowOffset = glm::vec2(0.0f);
 	bool flip = false;
+	bool drawShadow = true;
 	Sprite(const std::string &texId, glm::vec2 pos);
 };
 
@@ -23,3 +27,24 @@ struct Player {
 	// Constructor
 	Player(int px, int py);
 };
+
+class Game {
+	Level level = Level(-8, -8, 8, 8);
+	Player player = Player(0, 0);
+	TileVaos tileVaos;
+
+	void movePlayer();
+	void pushBlocks(int prevx, int prevy, int &x, int &y);
+
+	std::stack<std::pair<int, int>> chunksToUpdate;
+public:
+	Level &getLevel();
+	Player &getPlayer();
+	const TileVaos &getTileVaos() const;
+	void initTestLevel();
+
+	void update(float dt);
+	void updateChunkVaos();
+};
+
+bool canPush(const Level &level, int x, int y, int dirx, int diry);
