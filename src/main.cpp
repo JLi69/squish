@@ -19,7 +19,11 @@ void display(Game &game, int w, int h) {
 	setupShader("shadow_shader", w, h, DEFAULT_ZOOM);
 	setupShader("sprite_shader", w, h, DEFAULT_ZOOM);
 	const Player &player = game.getPlayer();
-	glm::vec2 playerPos(float(player.x), float(player.y));
+	glm::vec2 playerPos;
+	if(player.translationAnimationActive)
+		playerPos = glm::vec2(player.translateX.value(), player.translateY.value());
+	else
+		playerPos = glm::vec2(float(player.x), float(player.y));
 	displaySprite(player.sprite, playerPos, game.getLevel());
 }
 
@@ -44,6 +48,8 @@ int main() {
 	float dt = 0.0f;
 	// Main loop
 	while(!glfwWindowShouldClose(window)) {
+		float begin = glfwGetTime();
+
 		game.update(dt);
 
 		game.updateChunkVaos();
@@ -56,6 +62,8 @@ int main() {
 		glfwPollEvents();
 
 		gfx::outputErrors();
+
+		dt = glfwGetTime() - begin;
 	}
 
 	// Clean up

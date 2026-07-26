@@ -53,10 +53,10 @@ void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level) {
 	spriteShader.uniformBool("flipVert", sprite.flip);
 	float displayy = pos.y + sprite.offset.y;
 	float z = getZFromY(pos.y, float(level.getTopY()), float(level.getBottomY()));
-	glm::vec3 playerPos = glm::vec3(pos.x + sprite.offset.x, displayy, z);
+	glm::vec3 displayPos = glm::vec3(pos.x + sprite.offset.x, displayy, z);
 	glm::mat4 transform = glm::mat4(1.0f);
-	transform = glm::translate(transform, playerPos);
-	transform = glm::scale(transform, glm::vec3(1.2f, 1.2f, 1.0f));
+	transform = glm::translate(transform, displayPos);
+	transform = glm::scale(transform, glm::vec3(sprite.scale, 1.0f));
 	spriteShader.uniformMat4x4("transform", transform);
 	TEXTURES->bindTexture(sprite.spriteTexId, GL_TEXTURE0);
 	VAOS->draw();

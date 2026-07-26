@@ -19,13 +19,34 @@ struct Sprite {
 	Sprite(const std::string &texId, glm::vec2 pos);
 };
 
+struct AnimationValue {
+	bool loop = false;
+	float direction = 1.0f;
+	float start, end;
+	// Ranges from 0.0 to 1.0
+	float time;
+	// Length of animation in seconds
+	float length;
+	AnimationValue();
+	AnimationValue(float startValue, float endValue, float lengthValue);
+	float value() const;
+	void update(float dt);
+};
+
 struct Player {
 	Sprite sprite = Sprite("", glm::vec2(0.0f, 0.0f));
 	// Position of the player
 	int x = 0, y = 0;
+	AnimationValue squishyAnimation;
+	// Animation for moving
+	AnimationValue translateX, translateY;
+	bool translationAnimationActive = false;
 
 	// Constructor
 	Player(int px, int py);
+
+	void update(float dt);
+	void activateTranslationAnimation(float x1, float x2, float y1, float y2);
 };
 
 class Game {
@@ -34,7 +55,8 @@ class Game {
 	TileVaos tileVaos;
 
 	void movePlayer();
-	void pushBlocks(int prevx, int prevy, int &x, int &y);
+	// Returns true if a block was able to be succesfully pushed
+	bool pushBlocks(int prevx, int prevy, int &x, int &y);
 
 	std::stack<std::pair<int, int>> chunksToUpdate;
 public:
