@@ -4,6 +4,7 @@
 #include <cstdint>
 #include <unordered_map>
 #include <glm/glm.hpp>
+#include <string>
 
 struct Tile {	
 	uint16_t tileId;
@@ -19,7 +20,7 @@ struct Tile {
 	// Returns whether the tile is completely empty (has an id of 0)
 	bool isEmpty() const;
 
-	static void initTextureOffsets();
+	static void initTiles(const char *path);
 	glm::vec2 getTexOffset() const;
 };
 
@@ -53,6 +54,7 @@ public:
 	 * If the coordinates are out of bounds, this method does nothing
 	 */
 	void setTile(int x, int y, Tile tile);
+	void setTile(int x, int y, const std::string &tileName);
 
 	int getLeftX() const;
 	int getRightX() const;
@@ -62,3 +64,5 @@ public:
 	int getWidth() const;
 	int getHeight() const;
 };
+
+Tile tile(const std::string &name);

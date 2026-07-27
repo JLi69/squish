@@ -9,12 +9,20 @@ void Level::setFloorTile(int x, int y, Tile tile) {
 	floorTiles.setTile(x, y, tile);
 }
 
+void Level::setFloorTile(int x, int y, const std::string tileName) {
+	floorTiles.setTile(x, y, tileName);
+}
+
 Tile Level::getFloorTile(int x, int y) const {
 	return floorTiles.getTile(x, y);
 }
 
 void Level::setWallTile(int x, int y, Tile tile) {
 	wallTiles.setTile(x, y, tile);
+}
+
+void Level::setWallTile(int x, int y, const std::string tileName) {
+	wallTiles.setTile(x, y, tileName);
 }
 
 Tile Level::getWallTile(int x, int y) const {
@@ -40,30 +48,24 @@ int Level::getTopY() const {
 Level genTestLevel() {
 	Level testLevel(-8, -8, 8, 8);
 
-	// Test tiles
-	Tile wallTile = Tile(1);
-	Tile floorTile = Tile(2);
-	Tile crateTile = Tile(3);
-	crateTile.canPush = true;
-
 	// Generate walls and floors
 	for(int x = -4; x <= 4; x++) {
 		for(int y = -4; y <= 4; y++) {
-			testLevel.setFloorTile(x, y, floorTile);
+			testLevel.setFloorTile(x, y, "stone_floor");
 			if((x >= -2 && x <= 0) && y == 2) {
-				testLevel.setWallTile(x, y, wallTile);
+				testLevel.setWallTile(x, y, "brick");
 				continue;
 			}
 			if(abs(x) == 4 || abs(y) == 4) {
-				testLevel.setWallTile(x, y, wallTile);
+				testLevel.setWallTile(x, y, "brick");
 				continue;
 			}
 		}
 	}
-	testLevel.setWallTile(2, -2, wallTile);
+	testLevel.setWallTile(2, -2, "brick");
 
 	// Add a pushable crate
-	testLevel.setWallTile(-2, -2, crateTile);
+	testLevel.setWallTile(-2, -2, "crate");
 
 	return testLevel;
 }

@@ -9,4 +9,5 @@ in vec2 tc;
 
 void main() {
 	fragColor = texture(tex, tc) * shadingValue;
+	fragColor.a = 1.0;
 }

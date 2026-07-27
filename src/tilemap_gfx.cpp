@@ -1,10 +1,10 @@
 #include "tilemap_gfx.hpp"
 
-const float FLOOR_SHADING = 0.9f;
-const float FLOOR_WALL_SHADING = 0.75f;
+const float FLOOR_SHADING = 0.8f;
+const float FLOOR_WALL_SHADING = 0.6f;
 const float WALL_HEIGHT = 0.6f;
-const float WALL_TOP_SHADING = 0.75f;
-const float WALL_BOT_SHADING = 0.6f;
+const float WALL_TOP_SHADING = 0.6f;
+const float WALL_BOT_SHADING = 0.4f;
 
 int tileToChunkCoord(int coord) {
 	if(coord >= 0)

@@ -10,9 +10,11 @@ public:
 	Level(int lx, int by, int rx, int ty);
 
 	void setFloorTile(int x, int y, Tile tile);
+	void setFloorTile(int x, int y, const std::string tileName);
 	Tile getFloorTile(int x, int y) const;
 
 	void setWallTile(int x, int y, Tile tile);
+	void setWallTile(int x, int y, const std::string tileName);
 	Tile getWallTile(int x, int y) const;
 
 	int getLeftX() const;

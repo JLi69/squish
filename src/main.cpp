@@ -31,7 +31,7 @@ int main() {
 	// Initialize the window
 	GLFWwindow *window = initWindow();
 
-	Tile::initTextureOffsets();
+	Tile::initTiles("assets/tiles.impfile");
 	VAOS->genSimple();
 	// Setup shaders
 	SHADERS->importFromFile("assets/shaders.impfile");	

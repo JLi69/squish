@@ -1,0 +1,17 @@
+# This file contains a bunch of 'templates' for different types of tiles
+
+"brick" {
+	"id" = "1";
+	"tex_coords" = "1.0, 0.0";
+}
+
+"stone_floor" {
+	"id" = "2";
+	"tex_coords" = "2.0, 0.0";
+}
+
+"crate" {
+	"id" = "3";
+	"tags" = "can_push";
+	"tex_coords" = "3.0, 0.0";
+}
