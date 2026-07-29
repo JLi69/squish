@@ -14,6 +14,13 @@ void setupShader(const std::string &shader, int w, int h, float zoom) {
 	shaderProgram.uniformMat4x4("windowMat", windowMat);
 }
 
+void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z) {
+	tileVao.bind();
+	shader.uniformFloat("z", z);
+	shader.uniformVec2("offset", offset);
+	glDrawElements(GL_TRIANGLES, tileVao.vertcount, GL_UNSIGNED_INT, 0);
+}
+
 void displayLevel(const TileVaos &tileVaos) {
 	ShaderProgram &tileShader = SHADERS->getShader("tile_shader");
 	TEXTURES->bindTexture("tiles", GL_TEXTURE0);	
@@ -22,13 +29,11 @@ void displayLevel(const TileVaos &tileVaos) {
 	for(const auto &tileVao : tileVaos) {
 		const std::pair<int, int> &coords = tileVao.first;
 		const gfx::Vao &vao = tileVao.second;
-		vao.bind();
 		glm::vec2 offset(
 			float(coords.first * CHUNK_SIZE),
 			float(coords.second * CHUNK_SIZE)
 		);
-		tileShader.uniformVec2("offset", offset);
-		glDrawElements(GL_TRIANGLES, vao.vertcount, GL_UNSIGNED_INT, 0);
+		displayChunk(vao, tileShader, offset, 0.0f);
 	}
 }
 

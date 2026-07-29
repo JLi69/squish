@@ -1,10 +1,9 @@
 #include "tilemap_gfx.hpp"
 
-const float FLOOR_SHADING = 0.8f;
-const float FLOOR_WALL_SHADING = 0.6f;
-const float WALL_HEIGHT = 0.6f;
-const float WALL_TOP_SHADING = 0.6f;
-const float WALL_BOT_SHADING = 0.4f;
+const unsigned int INDICES[] = {
+	0, 1, 2,
+	1, 2, 3,
+};
 
 int tileToChunkCoord(int coord) {
 	if(coord >= 0)
@@ -49,11 +48,6 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 ) {
 	mesh::ElementArrayBuffer<float> vertexData;
 
-	const unsigned int indices[] = {
-		0, 1, 2,
-		1, 2, 3,
-	};
-
 	unsigned int quadcount = 0;
 	// Add floor
 	for(int tx = 0; tx < CHUNK_SIZE; tx++) {
@@ -78,7 +72,7 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 				addTileQuadToBuffer(vertexData, x, y, 1.0f, 1.0f, texOffset, FLOOR_SHADING, FLOOR_SHADING);
 
 			for(int i = 0; i < 6; i++)
-				vertexData.indices.push_back(4 * quadcount + indices[i]);
+				vertexData.indices.push_back(4 * quadcount + INDICES[i]);
 			quadcount++;
 		}
 	}
@@ -99,7 +93,7 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 			glm::vec2 texOffset = tile.getTexOffset();
 			addTileQuadToBuffer(vertexData, x, y, z, WALL_HEIGHT, texOffset, WALL_TOP_SHADING, WALL_BOT_SHADING);
 			for(int i = 0; i < 6; i++)
-				vertexData.indices.push_back(4 * quadcount + indices[i]);
+				vertexData.indices.push_back(4 * quadcount + INDICES[i]);
 			quadcount++;
 		}
 	}
@@ -119,7 +113,7 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 			glm::vec2 texOffset = tile.getTexOffset();
 			addTileQuadToBuffer(vertexData, x, y, z, 1.0f, texOffset, 1.0f, 1.0f);
 			for(int i = 0; i < 6; i++)
-				vertexData.indices.push_back(4 * quadcount + indices[i]);
+				vertexData.indices.push_back(4 * quadcount + INDICES[i]);
 			quadcount++;
 		}
 	}
@@ -223,4 +217,31 @@ void updateTileMapVaos(
 	levelDataToBuffers(vao.buffers, vertices);
 	vao.vertcount = vertices.indices.size();
 	glBindVertexArray(0);
+}
+
+gfx::Vao genWallTileVao(Tile tile) {
+	gfx::Vao vao;
+
+	unsigned int quadcount = 0;
+	mesh::ElementArrayBuffer<float> vertices;
+
+	glm::vec2 texOffset = tile.getTexOffset();
+	addTileQuadToBuffer(vertices, 0.0f, 0.0f, 0.0f, WALL_HEIGHT, texOffset, WALL_TOP_SHADING, WALL_BOT_SHADING);
+	for(int i = 0; i < 6; i++)
+		vertices.indices.push_back(4 * quadcount + INDICES[i]);
+	quadcount++;
+
+	float y = WALL_HEIGHT;
+	addTileQuadToBuffer(vertices, 0.0f, y, 0.0f, 1.0f, texOffset, 1.0f, 1.0f);
+	for(int i = 0; i < 6; i++)
+		vertices.indices.push_back(4 * quadcount + INDICES[i]);
+	quadcount++;
+
+	vao.genBuffers(4);
+	glBindVertexArray(vao.vaoid);
+	levelDataToBuffers(vao.buffers, vertices);
+	vao.vertcount = vertices.indices.size();
+	glBindVertexArray(0);
+
+	return vao;
 }

@@ -3,6 +3,7 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <stack>
+#include "animation.hpp"
 #include "level.hpp"
 #include "tilemap_gfx.hpp"
 
@@ -17,20 +18,6 @@ struct Sprite {
 	bool flip = false;
 	bool drawShadow = true;
 	Sprite(const std::string &texId, glm::vec2 pos);
-};
-
-struct AnimationValue {
-	bool loop = false;
-	float direction = 1.0f;
-	float start, end;
-	// Ranges from 0.0 to 1.0
-	float time;
-	// Length of animation in seconds
-	float length;
-	AnimationValue();
-	AnimationValue(float startValue, float endValue, float lengthValue);
-	float value() const;
-	void update(float dt);
 };
 
 struct Player {

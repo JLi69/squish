@@ -1,13 +1,10 @@
 #include "game.hpp"
 #include "app.hpp"
 #include <set>
-#include <algorithm>
+#include <set>
 
 const float DEFAULT_PLAYER_SCALE = 1.1f;
 const glm::vec2 DEFAULT_PLAYER_OFFSET = glm::vec2(0.0f, 0.4f);
-// In seconds
-const float PLAYER_SQUISH_ANIMATION_LENGTH = 0.5f;
-const float TRANSLATION_ANIMATION_LENGTH = 0.125f;
 
 Sprite::Sprite(const std::string &texId, glm::vec2 pos) {
 	spriteTexId = texId;
@@ -50,35 +47,6 @@ void Player::activateTranslationAnimation(float x1, float x2, float y1, float y2
 	translateX = AnimationValue(x1, x2, TRANSLATION_ANIMATION_LENGTH);
 	translateY = AnimationValue(y1, y2, TRANSLATION_ANIMATION_LENGTH);
 	translationAnimationActive = true;
-}
-
-AnimationValue::AnimationValue() {
-	start = 0.0f;
-	end = 0.0f;
-	time = 0.0f;
-	length = 1.0f;
-}
-
-AnimationValue::AnimationValue(float startValue, float endValue, float lengthValue) {
-	start = startValue;
-	end = endValue;
-	time = 0.0f;
-	length = lengthValue;
-}
-
-float AnimationValue::value() const {
-	return (end - start) * std::clamp(time, 0.0f, 1.0f) + start;
-}
-
-void AnimationValue::update(float dt) {
-	time += dt * 1.0f / length * direction;
-	if(loop) {
-		if(direction > 0.0f && time >= 1.0f)
-			direction = -1.0f;
-		else if(direction < 0.0f && time <= 0.0f)
-			direction = 1.0f;
-	}
-	time = std::clamp(time, 0.0f, 1.0f);
 }
 
 Level &Game::getLevel() {
@@ -127,10 +95,10 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 		diry = y - prevy;
 	if(dirx == 0 && diry == 0)
 		return false;
-	if(canPush(level, x, y, dirx, diry)) {
+	if(canPush(level, x, y, dirx, diry) && !level.isBlocked(x, y)) {
 		Tile tile = level.getWallTile(x, y);
+		level.addPushedBlock(x, y, dirx, diry, level.getWallTile(x, y));
 		level.setWallTile(x, y, Tile());
-		level.setWallTile(x + dirx, y + diry, tile);
 		
 		// Mark which tile map vaos should be updated
 		std::set<std::pair<int, int>> toUpdate;
@@ -167,19 +135,32 @@ void Game::update(float dt) {
 		if(pushBlocks(prevx, prevy, player.x, player.y))
 			player.activateTranslationAnimation(prevx, player.x, prevy, player.y);
 	}
+	std::set<std::pair<int ,int>> pushTileChunkUpdateList;
+	level.updatePushedTiles(dt, pushTileChunkUpdateList);
+	for(const auto &chunkpos : pushTileChunkUpdateList)
+		chunksToUpdate.push(chunkpos);
 }
 
 void Game::updateChunkVaos() {
+	std::set<std::pair<int, int>> updated;
 	while(!chunksToUpdate.empty()) {
 		std::pair<int, int> top = chunksToUpdate.top();
+		// Skip over any chunks that we already updated
+		if(updated.count(top)) {
+			chunksToUpdate.pop();
+			continue;
+		}
 		int chunkx = top.first, 
 			chunky = top.second;
 		updateTileMapVaos(tileVaos, level, chunkx, chunky);
 		chunksToUpdate.pop();
+		updated.insert(top);
 	}
 }
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry) {
+	if(level.isBlocked(x + dirx, y + diry))
+		return false;
 	if(!level.getWallTile(x, y).canPush)
 		return false;
 	if(!level.getWallTile(x + dirx, y + diry).isEmpty())

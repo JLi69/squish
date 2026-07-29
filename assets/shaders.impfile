@@ -15,3 +15,9 @@
 	"vertex" = "assets/shaders/sprite_vert.glsl";
 	"fragment" = "assets/shaders/shadow_frag.glsl";
 }
+
+# Shader for tile shadows
+"tile_shadow_shader" {
+	"vertex" = "assets/shaders/sprite_vert.glsl";
+	"fragment" = "assets/shaders/tile_shadow_frag.glsl";
+}

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tilemap_gfx.hpp"
+#include "shader.hpp"
 #include "game.hpp"
 
 const float DEFAULT_ZOOM = 0.175f;
@@ -11,6 +12,8 @@ float getZFromY(float y, float topy, float boty);
 // Activates the shader that we want to use and also feeds in the window matrix
 // as a uniform to the shader
 void setupShader(const std::string &shader, int w, int h, float zoom);
+// Dispays a single chunk vao
+void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z);
 // Displays the tiles in a level
 void displayLevel(const TileVaos &tileVaos);
 // Displays a sprite at a position (along with a shadow beneath the sprite)

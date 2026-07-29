@@ -15,6 +15,33 @@ void display(Game &game, int w, int h) {
 	setupShader("tile_shader", w, h, DEFAULT_ZOOM);
 	displayLevel(game.getTileVaos());
 
+	// Display pushed blocks	
+	TEXTURES->bindTexture("tiles", GL_TEXTURE0);
+	ShaderProgram &tileShader = SHADERS->getShader("tile_shader");
+	tileShader.uniformVec2("textureScale", glm::vec2(16.0f, 16.0f));
+	float topy = game.getLevel().getTopY(),
+		  boty = game.getLevel().getBottomY();
+	for(const auto &pair : game.getLevel().getPushedTiles()) {
+		const PushedTile &pushedTile = pair.second;
+		glm::vec2 offset(pushedTile.translateX.value(), pushedTile.translateY.value());
+		float z = getZFromY(pushedTile.translateY.value(), topy, boty);
+		displayChunk(pushedTile.vao, tileShader, offset, z);
+	}
+
+	VAOS->bind("quad");
+	setupShader("tile_shadow_shader", w, h, DEFAULT_ZOOM);
+	ShaderProgram &tileShadowShader = SHADERS->getShader("tile_shadow_shader");
+	tileShadowShader.uniformFloat("shading", FLOOR_WALL_SHADING * FLOOR_SHADING * 0.5f);
+	for(const auto &pair : game.getLevel().getPushedTiles()) {
+		const PushedTile &pushedTile = pair.second;
+		glm::mat4 transform = glm::mat4(1.0f);
+		glm::vec3 pos(pushedTile.translateX.value(), pushedTile.translateY.value(), 0.0f);
+		pos.y -= 1.0f;
+		transform = glm::translate(transform, pos);
+		tileShadowShader.uniformMat4x4("transform", transform);
+		VAOS->draw();
+	}
+
 	// Display player
 	setupShader("shadow_shader", w, h, DEFAULT_ZOOM);
 	setupShader("sprite_shader", w, h, DEFAULT_ZOOM);
