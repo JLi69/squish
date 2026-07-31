@@ -12,6 +12,7 @@ float getZFromY(float y, float topy, float boty);
 // Activates the shader that we want to use and also feeds in the window matrix
 // as a uniform to the shader
 void setupShader(const std::string &shader, int w, int h, float zoom);
+void setupShaderCam(const std::string &shader, int w, int h, float zoom, const glm::mat4 &camMat);
 // Dispays a single chunk vao
 void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z);
 // Displays the tiles in a level

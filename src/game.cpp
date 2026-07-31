@@ -1,7 +1,7 @@
 #include "game.hpp"
 #include "app.hpp"
 #include <set>
-#include <set>
+#include <glm/gtc/matrix_transform.hpp>
 
 const float DEFAULT_PLAYER_SCALE = 1.1f;
 const glm::vec2 DEFAULT_PLAYER_OFFSET = glm::vec2(0.0f, 0.4f);
@@ -47,6 +47,27 @@ void Player::activateTranslationAnimation(float x1, float x2, float y1, float y2
 	translateX = AnimationValue(x1, x2, TRANSLATION_ANIMATION_LENGTH);
 	translateY = AnimationValue(y1, y2, TRANSLATION_ANIMATION_LENGTH);
 	translationAnimationActive = true;
+}
+
+glm::vec2 Player::getDisplayPos() const {
+	if(translationAnimationActive)
+		return glm::vec2(translateX.value(), translateY.value());
+	return glm::vec2(float(x), float(y));
+}
+
+glm::mat4 Camera2D::getMat() const {
+	glm::mat4 camMat = glm::mat4(1.0f);
+	camMat = glm::scale(camMat, glm::vec3(zoom));
+	camMat = glm::translate(camMat, glm::vec3(-pos, 0.0f));
+	return camMat;
+}
+
+void Camera2D::follow(float dt, glm::vec2 followPos) {
+	float dist = glm::length(followPos - pos);
+	if(dist < MIN_FOLLOW_DIST)
+		return;
+	glm::vec2 dir = glm::normalize(followPos - pos);
+	pos += dir * std::min(dt * followSpeed * dist, dist);
 }
 
 Level &Game::getLevel() {
@@ -139,6 +160,8 @@ void Game::update(float dt) {
 	level.updatePushedTiles(dt, pushTileChunkUpdateList);
 	for(const auto &chunkpos : pushTileChunkUpdateList)
 		chunksToUpdate.push(chunkpos);
+	
+	camera.follow(dt, player.getDisplayPos());
 }
 
 void Game::updateChunkVaos() {
@@ -170,4 +193,8 @@ bool canPush(const Level &level, int x, int y, int dirx, int diry) {
 
 const TileVaos &Game::getTileVaos() const {
 	return tileVaos;
+}
+
+Camera2D &Game::getCamera() {
+	return camera;
 }

@@ -14,6 +14,13 @@ void setupShader(const std::string &shader, int w, int h, float zoom) {
 	shaderProgram.uniformMat4x4("windowMat", windowMat);
 }
 
+void setupShaderCam(const std::string &shader, int w, int h, float zoom, const glm::mat4 &camMat) {
+	ShaderProgram &shaderProgram = SHADERS->getShader(shader);
+	shaderProgram.use();
+	glm::mat4 windowMat = calculateWindowMat(float(w), float(h), zoom);
+	shaderProgram.uniformMat4x4("windowMat", windowMat * camMat);
+}
+
 void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z) {
 	tileVao.bind();
 	shader.uniformFloat("z", z);

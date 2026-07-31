@@ -34,12 +34,23 @@ struct Player {
 
 	void update(float dt);
 	void activateTranslationAnimation(float x1, float x2, float y1, float y2);
+	glm::vec2 getDisplayPos() const;
+};
+
+struct Camera2D {
+	const float MIN_FOLLOW_DIST = 0.05f;
+	glm::vec2 pos = glm::vec2(0.0f);
+	float zoom = 1.0f;
+	float followSpeed = 6.0f;
+	glm::mat4 getMat() const;
+	void follow(float dt, glm::vec2 followPos);
 };
 
 class Game {
 	Level level = Level(-8, -8, 8, 8);
 	Player player = Player(0, 0);
 	TileVaos tileVaos;
+	Camera2D camera = Camera2D();
 
 	void movePlayer();
 	// Returns true if a block was able to be succesfully pushed
@@ -54,6 +65,8 @@ public:
 
 	void update(float dt);
 	void updateChunkVaos();
+
+	Camera2D &getCamera();
 };
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry);

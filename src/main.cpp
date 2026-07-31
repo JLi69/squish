@@ -11,8 +11,11 @@
 void display(Game &game, int w, int h) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	Camera2D &camera = game.getCamera();
+	glm::mat4 camMat = camera.getMat();
+
 	// Display level
-	setupShader("tile_shader", w, h, DEFAULT_ZOOM);
+	setupShaderCam("tile_shader", w, h, DEFAULT_ZOOM, camMat);
 	displayLevel(game.getTileVaos());
 
 	// Display pushed blocks	
@@ -29,13 +32,13 @@ void display(Game &game, int w, int h) {
 	}
 
 	VAOS->bind("quad");
-	setupShader("tile_shadow_shader", w, h, DEFAULT_ZOOM);
+	setupShaderCam("tile_shadow_shader", w, h, DEFAULT_ZOOM, camMat);
 	ShaderProgram &tileShadowShader = SHADERS->getShader("tile_shadow_shader");
 	tileShadowShader.uniformFloat("shading", FLOOR_WALL_SHADING * FLOOR_SHADING * 0.5f);
 	for(const auto &pair : game.getLevel().getPushedTiles()) {
 		const PushedTile &pushedTile = pair.second;
 		glm::mat4 transform = glm::mat4(1.0f);
-		glm::vec3 pos(pushedTile.translateX.value(), pushedTile.translateY.value(), 0.0f);
+		glm::vec3 pos(pushedTile.translateX.value(), pushedTile.translateY.value(), 1.0f);
 		pos.y -= 1.0f;
 		transform = glm::translate(transform, pos);
 		tileShadowShader.uniformMat4x4("transform", transform);
@@ -43,14 +46,10 @@ void display(Game &game, int w, int h) {
 	}
 
 	// Display player
-	setupShader("shadow_shader", w, h, DEFAULT_ZOOM);
-	setupShader("sprite_shader", w, h, DEFAULT_ZOOM);
+	setupShaderCam("shadow_shader", w, h, DEFAULT_ZOOM, camMat);
+	setupShaderCam("sprite_shader", w, h, DEFAULT_ZOOM, camMat);
 	const Player &player = game.getPlayer();
-	glm::vec2 playerPos;
-	if(player.translationAnimationActive)
-		playerPos = glm::vec2(player.translateX.value(), player.translateY.value());
-	else
-		playerPos = glm::vec2(float(player.x), float(player.y));
+	glm::vec2 playerPos = player.getDisplayPos();
 	displaySprite(player.sprite, playerPos, game.getLevel());
 }
 
