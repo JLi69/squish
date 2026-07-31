@@ -10,7 +10,10 @@ struct Tile {
 	uint16_t tileId;
 	bool canPush = false;
 
+	// Texture offsets for the top of the tile
 	static std::unordered_map<uint16_t, glm::vec2> textureOffsets;
+	// Texture offsets for the side of the tile
+	static std::unordered_map<uint16_t, glm::vec2> sideTextureOffsets;
 
 	// Default constructor - returns an empty tile
 	Tile();
@@ -22,6 +25,7 @@ struct Tile {
 
 	static void initTiles(const char *path);
 	glm::vec2 getTexOffset() const;
+	glm::vec2 getSideTexOffset() const;
 };
 
 class TileMap {

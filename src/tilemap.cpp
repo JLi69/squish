@@ -4,6 +4,7 @@
 #include <cassert>
 
 std::unordered_map<uint16_t, glm::vec2> Tile::textureOffsets;
+std::unordered_map<uint16_t, glm::vec2> Tile::sideTextureOffsets;
 static std::unordered_map<std::string, Tile> nameToTile;
 
 Tile tile(const std::string &name) {
@@ -118,8 +119,12 @@ void Tile::initTiles(const char *path) {
 		// Attempt to parse the texture coordinates
 		glm::vec2 texCoord(0.0f, 0.0f);
 		std::string texCoordStr = entry.getVar("tex_coords");
-		parseTexCoords(texCoordStr, entry.name, texCoord);
-		textureOffsets[id] = texCoord;
+		if(parseTexCoords(texCoordStr, entry.name, texCoord))
+			textureOffsets[id] = texCoord;
+
+		texCoordStr = entry.getVar("side_tex_coords");
+		if(!texCoordStr.empty() && parseTexCoords(texCoordStr, entry.name, texCoord))
+			sideTextureOffsets[id] = texCoord;
 
 		Tile tile = Tile(id);
 		std::vector<std::string> tags = str_utils::split(entry.getVar("tags"), ",");
@@ -136,6 +141,12 @@ glm::vec2 Tile::getTexOffset() const {
 	if(!textureOffsets.count(tileId))
 		return glm::vec2(0.0f, 0.0f);
 	return textureOffsets.at(tileId);
+}
+
+glm::vec2 Tile::getSideTexOffset() const {
+	if(!sideTextureOffsets.count(tileId))
+		return getTexOffset();
+	return sideTextureOffsets.at(tileId);
 }
 
 TileMap::TileMap() {

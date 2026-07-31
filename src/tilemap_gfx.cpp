@@ -110,7 +110,7 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 			float y = float(ty) + WALL_HEIGHT;
 			float ycoord = float(ty) + float(chunky * CHUNK_SIZE);
 			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
-			glm::vec2 texOffset = tile.getTexOffset();
+			glm::vec2 texOffset = tile.getSideTexOffset();
 			addTileQuadToBuffer(vertexData, x, y, z, 1.0f, texOffset, 1.0f, 1.0f);
 			for(int i = 0; i < 6; i++)
 				vertexData.indices.push_back(4 * quadcount + INDICES[i]);
@@ -232,6 +232,7 @@ gfx::Vao genWallTileVao(Tile tile) {
 	quadcount++;
 
 	float y = WALL_HEIGHT;
+	texOffset = tile.getSideTexOffset();
 	addTileQuadToBuffer(vertices, 0.0f, y, 0.0f, 1.0f, texOffset, 1.0f, 1.0f);
 	for(int i = 0; i < 6; i++)
 		vertices.indices.push_back(4 * quadcount + INDICES[i]);

@@ -3,6 +3,7 @@
 "brick" {
 	"id" = "1";
 	"tex_coords" = "1.0, 0.0";
+	"side_tex_coords" = "1.0, 1.0";
 }
 
 "stone_floor" {
