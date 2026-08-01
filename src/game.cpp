@@ -2,6 +2,7 @@
 #include "app.hpp"
 #include <set>
 #include <glm/gtc/matrix_transform.hpp>
+#include <random>
 
 const float DEFAULT_PLAYER_SCALE = 1.1f;
 const glm::vec2 DEFAULT_PLAYER_OFFSET = glm::vec2(0.0f, 0.4f);
@@ -81,6 +82,13 @@ Player &Game::getPlayer() {
 void Game::initTestLevel() {
 	player = Player(0, 0);
 	level = genTestLevel();
+	tileVaos = getTileMapVaos(level);
+}
+
+void Game::initCaveLevel() {
+	player = Player(0, 0);
+	std::random_device rd;
+	level = genCaveLevel(rd());
 	tileVaos = getTileMapVaos(level);
 }
 

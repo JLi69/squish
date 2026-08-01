@@ -62,6 +62,7 @@ public:
 	Player &getPlayer();
 	const TileVaos &getTileVaos() const;
 	void initTestLevel();
+	void initCaveLevel();
 
 	void update(float dt);
 	void updateChunkVaos();

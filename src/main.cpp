@@ -65,7 +65,7 @@ int main() {
 	TEXTURES->importFromFile("assets/textures.impfile");
 
 	Game game = Game();
-	game.initTestLevel();
+	game.initCaveLevel();
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);

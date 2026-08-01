@@ -1,5 +1,10 @@
 # This file contains a bunch of 'templates' for different types of tiles
 
+"empty" {
+	"id" = "0";
+	"tex_coords" = "0.0, 0.0";
+}
+
 "brick" {
 	"id" = "1";
 	"tex_coords" = "1.0, 0.0";
@@ -15,4 +20,15 @@
 	"id" = "3";
 	"tags" = "can_push";
 	"tex_coords" = "3.0, 0.0";
+}
+
+"dirt" {
+	"id" = "4";
+	"tags" = "can_push";
+	"tex_coords" = "4.0, 0.0";
+}
+
+"stone" {
+	"id" = "5";
+	"tex_coords" = "5.0, 0.0";
 }

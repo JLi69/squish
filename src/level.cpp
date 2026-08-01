@@ -64,31 +64,6 @@ int Level::getTopY() const {
 	return std::max(floorTiles.getTopY(), wallTiles.getTopY());
 }
 
-Level genTestLevel() {
-	Level testLevel(-8, -8, 8, 8);
-
-	// Generate walls and floors
-	for(int x = -4; x <= 4; x++) {
-		for(int y = -4; y <= 4; y++) {
-			testLevel.setFloorTile(x, y, "stone_floor");
-			if((x >= -2 && x <= 0) && y == 2) {
-				testLevel.setWallTile(x, y, "brick");
-				continue;
-			}
-			if(abs(x) == 4 || abs(y) == 4) {
-				testLevel.setWallTile(x, y, "brick");
-				continue;
-			}
-		}
-	}
-	testLevel.setWallTile(2, -2, "brick");
-
-	// Add a pushable crate
-	testLevel.setWallTile(-2, -2, "crate");
-
-	return testLevel;
-}
-
 void Level::addPushedBlock(int x, int y, int dirx, int diry, Tile tile) {
 	PushedTile pushedTile = PushedTile(x, y, dirx, diry, tile);
 	pushedTile.vao = genWallTileVao(tile);

@@ -48,3 +48,5 @@ public:
 
 // For debug purposes: generates test level
 Level genTestLevel();
+// Generates a cave level
+Level genCaveLevel(unsigned int seed);

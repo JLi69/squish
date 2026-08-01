@@ -60,7 +60,7 @@ GLFWwindow *initWindow() {
 		die("Failed to initialize GLFW!");
 
 	// Initialize the window
-	GLFWwindow *window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "Tilemap Test", NULL, NULL);
+	GLFWwindow *window = glfwCreateWindow(DEFAULT_WIDTH, DEFAULT_HEIGHT, "Squish", NULL, NULL);
 	if(!window)
 		die("Failed to create window!");
 	glfwMakeContextCurrent(window);
