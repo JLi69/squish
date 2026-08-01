@@ -41,6 +41,25 @@ static void addTileQuadToBuffer(
 	mesh::addToMesh(vertexData.mesh, shadingTop);
 }
 
+static float getLightLevel(const Level &level, int x, int y) {
+	if(level.getWallTile(x, y).isEmpty())
+		return 1.0f;
+	int distToEmpty = 3;
+	for(int dx = -2; dx <= 2; dx++)
+		for(int dy = -2; dy <= 2; dy++)
+			if(level.getWallTile(x + dx, y + dy).isEmpty())
+				distToEmpty = std::min(std::max(abs(dx), abs(dy)), distToEmpty);
+	switch(distToEmpty) {
+	case 0:
+	case 1:
+		return 1.0f;
+	case 2:
+		return 0.4f;
+	default:
+		return 0.0f;
+	}
+}
+
 mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 	const Level &level,
 	int chunkx,
@@ -91,7 +110,10 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 			float ycoord = y + float(chunky * CHUNK_SIZE);
 			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
 			glm::vec2 texOffset = tile.getTexOffset();
-			addTileQuadToBuffer(vertexData, x, y, z, WALL_HEIGHT, texOffset, WALL_TOP_SHADING, WALL_BOT_SHADING);
+			float lightLevel = getLightLevel(level, tilePosX, tilePosY);
+			float topShading = WALL_TOP_SHADING * lightLevel;
+			float botShading = WALL_BOT_SHADING * lightLevel;
+			addTileQuadToBuffer(vertexData, x, y, z, WALL_HEIGHT, texOffset, topShading, botShading);
 			for(int i = 0; i < 6; i++)
 				vertexData.indices.push_back(4 * quadcount + INDICES[i]);
 			quadcount++;
@@ -111,7 +133,8 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 			float ycoord = float(ty) + float(chunky * CHUNK_SIZE);
 			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
 			glm::vec2 texOffset = tile.getSideTexOffset();
-			addTileQuadToBuffer(vertexData, x, y, z, 1.0f, texOffset, 1.0f, 1.0f);
+			float lightLevel = getLightLevel(level, tilePosX, tilePosY);
+			addTileQuadToBuffer(vertexData, x, y, z, 1.0f, texOffset, lightLevel, lightLevel);
 			for(int i = 0; i < 6; i++)
 				vertexData.indices.push_back(4 * quadcount + INDICES[i]);
 			quadcount++;

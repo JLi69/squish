@@ -133,12 +133,12 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 		std::set<std::pair<int, int>> toUpdate;
 		for(int dx = -1; dx <= 1; dx++) {
 			for(int dy = -1; dy <= 1; dy++) {
-				int chunkx = tileToChunkCoord(x + dx);
-				int chunky = tileToChunkCoord(y + dy);
+				int chunkx = tileToChunkCoord(x + dx * 3);
+				int chunky = tileToChunkCoord(y + dy * 3);
 				toUpdate.insert({ chunkx, chunky });
 
-				chunkx = tileToChunkCoord(x + dirx + dx);
-				chunky = tileToChunkCoord(y + diry + dy);
+				chunkx = tileToChunkCoord(x + dirx + dx * 3);
+				chunky = tileToChunkCoord(y + diry + dy * 3);
 				toUpdate.insert({ chunkx, chunky });
 			}
 		}
