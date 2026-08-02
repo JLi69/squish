@@ -45,10 +45,16 @@ static float getLightLevel(const Level &level, int x, int y) {
 	if(level.getWallTile(x, y).isEmpty())
 		return 1.0f;
 	int distToEmpty = 3;
-	for(int dx = -2; dx <= 2; dx++)
-		for(int dy = -2; dy <= 2; dy++)
+	for(int dx = -2; dx <= 2; dx++) {
+		for(int dy = -2; dy <= 2; dy++) {
+			if(x + dx < level.getLeftX() || x + dx > level.getRightX())
+				continue;
+			if(y + dy < level.getBottomY() || y + dy > level.getTopY())
+				continue;
 			if(level.getWallTile(x + dx, y + dy).isEmpty())
 				distToEmpty = std::min(std::max(abs(dx), abs(dy)), distToEmpty);
+		}
+	}
 	switch(distToEmpty) {
 	case 0:
 	case 1:

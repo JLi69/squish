@@ -96,6 +96,13 @@ static void createDungeonRoom(
 
 	for(int i = 0; i < 4; i++) {
 		level.setFloorTile(doorX[i], doorY[i], floorTile);
+		for(int dx = -1; dx <= 1; dx++) {
+			for(int dy = -1; dy <= 1; dy++) {
+				if(level.getWallTile(doorX[i] + dx, doorY[i] + dy).tileId == tile("brick").tileId)
+					continue;
+				level.setWallTile(doorX[i] + dx, doorY[i] + dy, "empty");
+			}
+		}
 		level.setWallTile(doorX[i], doorY[i], "empty");
 	}
 }
@@ -196,6 +203,7 @@ Level genCaveLevel(unsigned int seed) {
 	}
 
 	std::vector<Room> dungeonRooms;
+	dungeonRooms.push_back(Room(0, 0, 3, 3));
 	for(const auto &room : emptyRooms) {
 		if(random() % 5 == 0 && room.halfw > 2 && room.halfh > 2) {
 			bool intersects = false;
