@@ -20,3 +20,9 @@
 	"path" = "assets/textures/player.png";
 	"flip" = "true";
 }
+
+"slime" {
+	"target" = "texture2d";
+	"path" = "assets/textures/slime.png";
+	"flip" = "true";
+}
