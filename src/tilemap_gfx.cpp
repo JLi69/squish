@@ -113,7 +113,7 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 
 			float x = float(tx);
 			float y = float(ty);
-			float ycoord = y + float(chunky * CHUNK_SIZE);
+			float ycoord = y + float(chunky * CHUNK_SIZE) - 0.5f;
 			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
 			glm::vec2 texOffset = tile.getTexOffset();
 			float lightLevel = getLightLevel(level, tilePosX, tilePosY);
@@ -136,7 +136,7 @@ mesh::ElementArrayBuffer<float> getLevelVertDataForChunk(
 
 			float x = float(tx);
 			float y = float(ty) + WALL_HEIGHT;
-			float ycoord = float(ty) + float(chunky * CHUNK_SIZE);
+			float ycoord = float(ty) + float(chunky * CHUNK_SIZE) - 0.5f;
 			float z = (ycoord - level.getTopY()) / float(level.getTopY() - level.getBottomY());
 			glm::vec2 texOffset = tile.getSideTexOffset();
 			float lightLevel = getLightLevel(level, tilePosX, tilePosY);

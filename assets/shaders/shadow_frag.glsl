@@ -4,7 +4,7 @@ in vec3 fragpos;
 
 out vec4 fragColor;
 
-const float ALPHA_FACTOR = 0.4;
+const float ALPHA_FACTOR = 0.6;
 
 float calculateAlpha() {
 	float dist = length(fragpos * 2.0);

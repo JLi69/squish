@@ -2,6 +2,7 @@
 #include "app.hpp"
 #include <set>
 #include <glm/gtc/matrix_transform.hpp>
+#include "generate_level.hpp"
 #include <random>
 
 glm::mat4 Camera2D::getMat() const {
@@ -29,14 +30,18 @@ Player &Game::getPlayer() {
 
 void Game::initTestLevel() {
 	player = Player(0, 0);
-	level = genTestLevel();
+	GeneratedLevel genLevel = genTestLevel();
+	level = genLevel.level;
+	enemies = std::move(genLevel.enemies);
 	tileVaos = getTileMapVaos(level);
 }
 
 void Game::initCaveLevel() {
 	player = Player(0, 0);
 	std::random_device rd;
-	level = genCaveLevel(rd());
+	GeneratedLevel genLevel = genCaveLevel(rd());
+	level = genLevel.level;
+	enemies = std::move(genLevel.enemies);
 	tileVaos = getTileMapVaos(level);
 }
 
@@ -116,6 +121,13 @@ void Game::update(float dt) {
 	level.updatePushedTiles(dt, pushTileChunkUpdateList);
 	for(const auto &chunkpos : pushTileChunkUpdateList)
 		chunksToUpdate.push(chunkpos);
+
+	for(auto &enemy : enemies) {
+		enemy->update(dt);
+		if(enemy->updateMoveTimer(dt))
+			enemy->moveEnemy(level);
+		enemy->updateDir(level, player);
+	}
 	
 	camera.follow(dt, player.getDisplayPos());
 }
@@ -153,4 +165,8 @@ const TileVaos &Game::getTileVaos() const {
 
 Camera2D &Game::getCamera() {
 	return camera;
+}
+
+std::vector<std::unique_ptr<Enemy>> &Game::getEnemies() {
+	return enemies;
 }

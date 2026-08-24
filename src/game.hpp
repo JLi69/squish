@@ -2,7 +2,9 @@
 
 #include <stack>
 #include <glm/glm.hpp>
+#include <memory>
 #include "level.hpp"
+#include "enemies.hpp"
 #include "tilemap_gfx.hpp"
 #include "player.hpp"
 
@@ -17,6 +19,7 @@ struct Camera2D {
 
 class Game {
 	Level level = Level(-8, -8, 8, 8);
+	std::vector<std::unique_ptr<Enemy>> enemies;
 	Player player = Player(0, 0);
 	TileVaos tileVaos;
 	Camera2D camera = Camera2D();
@@ -37,6 +40,8 @@ public:
 	void updateChunkVaos();
 
 	Camera2D &getCamera();
+
+	std::vector<std::unique_ptr<Enemy>> &getEnemies();
 };
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry);

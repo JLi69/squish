@@ -1,3 +1,5 @@
+#include <cstdlib>
+#include <cstring>
 #include <glad/glad.h>
 #include <glm/gtc/matrix_transform.hpp>
 #define GLFW_INCLUDE_NONE
@@ -27,7 +29,7 @@ void display(Game &game, int w, int h) {
 	for(const auto &pair : game.getLevel().getPushedTiles()) {
 		const PushedTile &pushedTile = pair.second;
 		glm::vec2 offset(pushedTile.translateX.value(), pushedTile.translateY.value());
-		float z = getZFromY(pushedTile.translateY.value(), topy, boty);
+		float z = getZFromY(pushedTile.translateY.value() - 0.5f, topy, boty);
 		displayChunk(pushedTile.vao, tileShader, offset, z);
 	}
 
@@ -51,9 +53,22 @@ void display(Game &game, int w, int h) {
 	const Player &player = game.getPlayer();
 	glm::vec2 playerPos = player.getDisplayPos();
 	displaySprite(player.sprite, playerPos, game.getLevel());
+
+	for(const auto &enemy : game.getEnemies()) {
+		glm::vec2 displayPos = enemy->getDisplayPos();
+		displaySprite(enemy->sprite, displayPos, game.getLevel());
+	}
 }
 
-int main() {
+int main(int argc, char *argv[]) {
+	srand(time(NULL));
+
+	bool useTestLevel = false;
+	for(int i = 1; i < argc; i++) {
+		if(strcmp(argv[i], "--test") == 0)
+			useTestLevel = true;
+	}
+
 	// Initialize the window
 	GLFWwindow *window = initWindow();
 
@@ -65,7 +80,12 @@ int main() {
 	TEXTURES->importFromFile("assets/textures.impfile");
 
 	Game game = Game();
-	game.initCaveLevel();
+	if(useTestLevel) {
+		game.initTestLevel();
+	}
+	else {
+		game.initCaveLevel();
+	}
 
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);

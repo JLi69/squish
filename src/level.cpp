@@ -1,5 +1,6 @@
 #include "level.hpp"
 #include "tilemap_gfx.hpp"
+#include "generate_level.hpp"
 
 PushedTile::PushedTile(int startx, int starty, int dirx, int diry, Tile t) {
 	translateX = AnimationValue(

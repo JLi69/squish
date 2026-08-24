@@ -1,4 +1,4 @@
-#include "level.hpp"
+#include "generate_level.hpp"
 #include <random>
 #include <stack>
 
@@ -28,7 +28,9 @@ struct Room {
 	}
 };
 
-Level genTestLevel() {
+GeneratedLevel genTestLevel() {
+	GeneratedLevel genLevel;
+
 	Level testLevel(-8, -8, 8, 8);
 
 	// Generate walls and floors
@@ -50,7 +52,10 @@ Level genTestLevel() {
 	// Add a pushable crate
 	testLevel.setWallTile(-2, -2, "crate");
 
-	return testLevel;
+	genLevel.spawnEnemy(std::make_unique<Slime>(-3, 0));
+	genLevel.level = testLevel;
+
+	return genLevel;
 }
 
 static void createRoom(Level &level, Room room, const std::string &wallTile) {
@@ -138,10 +143,12 @@ static bool addNewRooms(
 	return false;
 }
 
-Level genCaveLevel(unsigned int seed) {
+GeneratedLevel genCaveLevel(unsigned int seed) {
 	fprintf(stderr, "Generating cave level with seed: %u.\n", seed);
 
-	Level level(-CAVE_SIZE, -CAVE_SIZE, CAVE_SIZE, CAVE_SIZE);
+	GeneratedLevel genLevel;
+	genLevel.level = Level(-CAVE_SIZE, -CAVE_SIZE, CAVE_SIZE, CAVE_SIZE);
+	Level &level = genLevel.level;
 
 	for(int x = -CAVE_SIZE; x <= CAVE_SIZE; x++) {
 		for(int y = -CAVE_SIZE; y <= CAVE_SIZE; y++) {
@@ -228,5 +235,9 @@ Level genCaveLevel(unsigned int seed) {
 		}
 	}
 
-	return level;
+	return genLevel;
+}
+
+void GeneratedLevel::spawnEnemy(std::unique_ptr<Enemy> enemy) {
+	enemies.push_back(std::move(enemy));
 }

@@ -45,8 +45,3 @@ public:
 	void updatePushedTiles(float dt, std::set<std::pair<int ,int>> &chunksToUpdate);
 	const std::map<std::pair<int, int>, PushedTile> &getPushedTiles() const;
 };
-
-// For debug purposes: generates test level
-Level genTestLevel();
-// Generates a cave level
-Level genCaveLevel(unsigned int seed);
