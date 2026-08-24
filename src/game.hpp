@@ -8,6 +8,8 @@
 #include "tilemap_gfx.hpp"
 #include "player.hpp"
 
+typedef std::vector<std::unique_ptr<Enemy>> EnemyList;
+
 struct Camera2D {
 	const float MIN_FOLLOW_DIST = 0.05f;
 	glm::vec2 pos = glm::vec2(0.0f);
@@ -19,7 +21,7 @@ struct Camera2D {
 
 class Game {
 	Level level = Level(-8, -8, 8, 8);
-	std::vector<std::unique_ptr<Enemy>> enemies;
+	EnemyList enemies;
 	Player player = Player(0, 0);
 	TileVaos tileVaos;
 	Camera2D camera = Camera2D();
@@ -27,6 +29,8 @@ class Game {
 	void movePlayer();
 	// Returns true if a block was able to be succesfully pushed
 	bool pushBlocks(int prevx, int prevy, int &x, int &y);
+	// Removes all null enemies from the enemy list
+	void clearEnemyList();
 
 	std::stack<std::pair<int, int>> chunksToUpdate;
 public:
@@ -41,7 +45,7 @@ public:
 
 	Camera2D &getCamera();
 
-	std::vector<std::unique_ptr<Enemy>> &getEnemies();
+	EnemyList &getEnemies();
 };
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry);

@@ -78,6 +78,13 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 	if(dirx == 0 && diry == 0)
 		return false;
 	if(canPush(level, x, y, dirx, diry) && !level.isBlocked(x, y)) {
+		for(auto &enemy : enemies) {
+			if(enemy == nullptr)
+				continue;
+			if(enemy->x == x + dirx && enemy->y == y + diry)
+				enemy->setDir(dirx, diry);
+		}
+
 		Tile tile = level.getWallTile(x, y);
 		level.addPushedBlock(x, y, dirx, diry, level.getWallTile(x, y));
 		level.setWallTile(x, y, Tile());
@@ -94,7 +101,7 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 				chunky = tileToChunkCoord(y + diry + dy * 3);
 				toUpdate.insert({ chunkx, chunky });
 			}
-		}
+		}	
 		
 		for(const auto &chunk : toUpdate)
 			chunksToUpdate.push(chunk);
@@ -120,16 +127,36 @@ void Game::update(float dt) {
 	std::set<std::pair<int ,int>> pushTileChunkUpdateList;
 	level.updatePushedTiles(dt, pushTileChunkUpdateList);
 	for(const auto &chunkpos : pushTileChunkUpdateList)
-		chunksToUpdate.push(chunkpos);
+		chunksToUpdate.push(chunkpos);	
 
 	for(auto &enemy : enemies) {
+		if(enemy == nullptr)
+			continue;
+
+		if(enemy->isInsideTile(level)) {
+			// Enemy got squished
+			if(!enemy->uncollide(level))
+				enemy.reset();
+			continue;
+		}
+
 		enemy->update(dt);
-		if(enemy->updateMoveTimer(dt))
+		if(!enemy->isInsideTile(level) && enemy->updateMoveTimer(dt)) {
+			int prevx = enemy->x;
+			int prevy = enemy->y;
 			enemy->moveEnemy(level);
-		enemy->updateDir(level, player);
+			if(enemy->isInsideTile(level)) {
+				enemy->translationAnimationActive = false;
+				enemy->x = prevx;
+				enemy->y = prevy;
+			}
+		}
+		enemy->updateDir(level, player);	
 	}
-	
+
 	camera.follow(dt, player.getDisplayPos());
+
+	clearEnemyList();
 }
 
 void Game::updateChunkVaos() {
@@ -150,7 +177,7 @@ void Game::updateChunkVaos() {
 }
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry) {
-	if(level.isBlocked(x + dirx, y + diry))
+	if(level.isBlocked(x + dirx, y + diry) || level.isBlocked(x, y))
 		return false;
 	if(!level.getWallTile(x, y).canPush)
 		return false;
@@ -167,6 +194,28 @@ Camera2D &Game::getCamera() {
 	return camera;
 }
 
-std::vector<std::unique_ptr<Enemy>> &Game::getEnemies() {
+EnemyList &Game::getEnemies() {
 	return enemies;
+}
+
+void Game::clearEnemyList() {
+	const int MAX_REMOVE = 32;
+	int removed = 0;
+	while(removed < MAX_REMOVE) {
+		int index = -1;
+		for(int i = 0; i < enemies.size(); i++) {
+			if(enemies.at(i) == nullptr) {
+				index = i;
+				break;
+			}
+		}
+		if(index < 0)
+			break;
+		enemies.at(index) = std::move(enemies.at(enemies.size() - 1));
+		enemies.pop_back();
+		removed++;
+	}
+
+	if(removed > 0)
+		fprintf(stderr, "DEBUG: removed %d enemies.\n", removed);
 }

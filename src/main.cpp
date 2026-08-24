@@ -55,6 +55,8 @@ void display(Game &game, int w, int h) {
 	displaySprite(player.sprite, playerPos, game.getLevel());
 
 	for(const auto &enemy : game.getEnemies()) {
+		if(enemy == nullptr)
+			continue;
 		glm::vec2 displayPos = enemy->getDisplayPos();
 		displaySprite(enemy->sprite, displayPos, game.getLevel());
 	}

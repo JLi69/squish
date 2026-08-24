@@ -33,7 +33,7 @@ bool Enemy::updateMoveTimer(float dt) {
 }
 
 void Enemy::moveEnemy(Level &level) {
-	if(!level.getWallTile(x + dirx, y + diry).isEmpty())
+	if(!level.getWallTile(x + dirx, y + diry).isEmpty() || level.isBlocked(x + dirx, y + diry))
 		return;
 	float prevx = float(x);
 	float prevy = float(y);
@@ -44,6 +44,52 @@ void Enemy::moveEnemy(Level &level) {
 
 void Enemy::updateDir(const Level &level, const Player &player) {
 	// Do nothing
+}
+
+int Enemy::getDirX() const {
+	return dirx;
+}
+
+int Enemy::getDirY() const {
+	return diry;
+}
+
+bool Enemy::uncollide(Level &level) {
+	if(!isInsideTile(level))
+		return true;
+	if(translationAnimationActive) {
+		x += dirx;
+		y += diry;
+		glm::vec2 displayPos = getDisplayPos();
+		float timeX = translateX.length * translateX.time;
+		float timeY = translateY.length * translateY.time;
+		activateTranslationAnimation(displayPos.x, float(x), displayPos.y, float(y));
+		translateX.length = timeX;
+		translateY.length = timeY;
+		dirx = 0;
+		diry = 0;
+		return !isInsideTile(level);
+	}
+	moveEnemy(level);
+	return !isInsideTile(level);
+}
+
+bool Enemy::isInsideTile(const Level &level) const {
+	if(!level.getWallTile(x, y).isEmpty())
+		return true;
+	if(level.isBlocked(x, y))
+		return true;
+	for(int dx = -1; dx <= 1; dx++) {
+		for(int dy = -1; dy <= 1; dy++) {
+			std::pair<int, int> pos = { x + dx, y + dy };
+			if(!level.getPushedTiles().count(pos))
+				continue;
+			const PushedTile &pushedTile = level.getPushedTiles().at(pos);
+			if(pushedTile.destinationX == x && pushedTile.destinationY == y)
+				return true;
+		}
+	}
+	return false;
 }
 
 Slime::Slime(int px, int py) {

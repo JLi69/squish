@@ -20,6 +20,12 @@ public:
 	bool updateMoveTimer(float dt);
 	virtual void moveEnemy(Level &level);
 	virtual void updateDir(const Level &level, const Player &player);
+
+	int getDirX() const;
+	int getDirY() const;
+
+	bool uncollide(Level &level);
+	bool isInsideTile(const Level &level) const;
 };
 
 class Slime : public Enemy {
