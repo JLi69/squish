@@ -1,4 +1,6 @@
 #include "enemies.hpp"
+#include "random_utils.hpp"
+#include <cmath>
 
 const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.1f);
 
@@ -92,6 +94,23 @@ bool Enemy::isInsideTile(const Level &level) const {
 	return false;
 }
 
+void Enemy::squish(ParticleList &particles) const {
+	int count = rand() % 6 + 10;
+	for(int i = 0; i < count; i++) {
+		glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
+		float angle = randf_range(0.0f, 2.0f * M_PI);
+		float dist = randf_range(0.0f, 0.3f);
+		glm::vec2 offset = glm::vec2(cos(angle), sin(angle)) * dist;
+		std::unique_ptr<BloodParticle> particle = std::make_unique<BloodParticle>(
+			center + offset,
+			bloodColor,
+			float(y) + sprite.shadowOffset.y
+		);
+		particle->vel = glm::vec2(cos(angle) * 0.5f, sin(angle)) * 6.0f;
+		particles.push_back(std::move(particle));
+	}
+}
+
 Slime::Slime(int px, int py) {
 	x = px;
 	y = py;
@@ -112,6 +131,8 @@ Slime::Slime(int px, int py) {
 
 	moveEnemyInterval = 1.0f;
 	moveEnemyTimer = moveEnemyInterval;
+
+	bloodColor = colors::SLIME_GREEN;
 }
 
 void Slime::updateDir(const Level &level, const Player &player) {

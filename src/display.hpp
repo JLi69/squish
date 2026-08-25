@@ -2,7 +2,8 @@
 
 #include "tilemap_gfx.hpp"
 #include "shader.hpp"
-#include "game.hpp"
+#include "sprite.hpp"
+#include "particles.hpp"
 
 const float DEFAULT_ZOOM = 0.175f;
 
@@ -19,3 +20,5 @@ void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offs
 void displayLevel(const TileVaos &tileVaos);
 // Displays a sprite at a position (along with a shadow beneath the sprite)
 void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level);
+// Displays a particle
+void displayParticle(const Particle &particle, const Level &level);

@@ -2,8 +2,12 @@
 #include "app.hpp"
 #include <set>
 #include <glm/gtc/matrix_transform.hpp>
-#include "generate_level.hpp"
 #include <random>
+
+void Game::loadFromGeneratedLevel(GeneratedLevel &genLevel) {
+	level = genLevel.level;
+	enemies = std::move(genLevel.enemies);
+}
 
 glm::mat4 Camera2D::getMat() const {
 	glm::mat4 camMat = glm::mat4(1.0f);
@@ -31,8 +35,7 @@ Player &Game::getPlayer() {
 void Game::initTestLevel() {
 	player = Player(0, 0);
 	GeneratedLevel genLevel = genTestLevel();
-	level = genLevel.level;
-	enemies = std::move(genLevel.enemies);
+	loadFromGeneratedLevel(genLevel);
 	tileVaos = getTileMapVaos(level);
 }
 
@@ -40,8 +43,7 @@ void Game::initCaveLevel() {
 	player = Player(0, 0);
 	std::random_device rd;
 	GeneratedLevel genLevel = genCaveLevel(rd());
-	level = genLevel.level;
-	enemies = std::move(genLevel.enemies);
+	loadFromGeneratedLevel(genLevel);
 	tileVaos = getTileMapVaos(level);
 }
 
@@ -135,8 +137,10 @@ void Game::update(float dt) {
 
 		if(enemy->isInsideTile(level)) {
 			// Enemy got squished
-			if(!enemy->uncollide(level))
+			if(!enemy->uncollide(level)) {
+				enemy->squish(particles);
 				enemy.reset();
+			}
 			continue;
 		}
 
@@ -154,9 +158,20 @@ void Game::update(float dt) {
 		enemy->updateDir(level, player);	
 	}
 
+	for(auto &particle : particles) {
+		if(particle == nullptr)
+			continue;
+		if(particle->finished()) {
+			particle.reset();
+			continue;
+		}
+		particle->update(dt);
+	}
+
 	camera.follow(dt, player.getDisplayPos());
 
 	clearEnemyList();
+	clearParticleList();
 }
 
 void Game::updateChunkVaos() {
@@ -198,6 +213,10 @@ EnemyList &Game::getEnemies() {
 	return enemies;
 }
 
+ParticleList &Game::getParticles() {
+	return particles;
+}
+
 void Game::clearEnemyList() {
 	const int MAX_REMOVE = 32;
 	int removed = 0;
@@ -218,4 +237,32 @@ void Game::clearEnemyList() {
 
 	if(removed > 0)
 		fprintf(stderr, "DEBUG: removed %d enemies.\n", removed);
+}
+
+void Game::clearParticleList() {
+	const int MAX_REMOVE = 32;
+	int removed = 0;
+	while(removed < MAX_REMOVE) {
+		int index = -1;
+		for(int i = 0; i < particles.size(); i++) {
+			if(particles.at(i) == nullptr) {
+				index = i;
+				break;
+			}
+		}
+		if(index < 0)
+			break;
+		particles.at(index) = std::move(particles.at(particles.size() - 1));
+		particles.pop_back();
+		removed++;
+	}
+
+	if(removed > 0) {
+		fprintf(
+			stderr,
+			"DEBUG: removed %d particles, %d particles left.\n", 
+			removed, 
+			int(particles.size())
+		);
+	}
 }

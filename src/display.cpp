@@ -69,7 +69,41 @@ void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level) {
 	glm::mat4 transform = glm::mat4(1.0f);
 	transform = glm::translate(transform, displayPos);
 	transform = glm::scale(transform, glm::vec3(sprite.scale, 1.0f));
+	transform = glm::rotate(transform, glm::radians(sprite.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
 	spriteShader.uniformMat4x4("transform", transform);
 	TEXTURES->bindTexture(sprite.spriteTexId, GL_TEXTURE0);
+	VAOS->draw();
+}
+
+
+void displayParticle(const Particle &particle, const Level &level) {
+	VAOS->bind("quad");
+	ShaderProgram &spriteShader = SHADERS->getShader("particle_shader");
+	ShaderProgram &shadowShader = SHADERS->getShader("shadow_shader");
+	
+	// Display shadow
+	if(particle.sprite.drawShadow) {
+		glm::vec3 shadowPos = glm::vec3(particle.position.x, particle.floory, 1.0f);
+		shadowPos += glm::vec3(particle.sprite.shadowOffset, 0.0f);
+		shadowShader.use();
+		glm::mat4 shadowTransform = glm::mat4(1.0f);
+		shadowTransform = glm::translate(shadowTransform, shadowPos);
+		shadowTransform = glm::scale(shadowTransform, glm::vec3(particle.sprite.shadowScale, 1.0f));
+		shadowShader.uniformMat4x4("transform", shadowTransform);
+		VAOS->draw();
+	}
+
+	spriteShader.use();
+	spriteShader.uniformBool("flipVert", particle.sprite.flip);
+	float displayy = particle.position.y + particle.sprite.offset.y;
+	float z = getZFromY(particle.floory, float(level.getTopY()), float(level.getBottomY()));
+	glm::vec3 displayPos = glm::vec3(particle.position.x + particle.sprite.offset.x, displayy, z);
+	glm::mat4 transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, displayPos);
+	transform = glm::scale(transform, glm::vec3(particle.sprite.scale, 1.0f));
+	transform = glm::rotate(transform, glm::radians(particle.sprite.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+	spriteShader.uniformMat4x4("transform", transform);
+	spriteShader.uniformVec4("color", particle.color);
+	TEXTURES->bindTexture(particle.sprite.spriteTexId, GL_TEXTURE0);
 	VAOS->draw();
 }

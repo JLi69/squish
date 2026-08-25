@@ -3,6 +3,8 @@
 #include "actor.hpp"
 #include "level.hpp"
 #include "player.hpp"
+#include "particles.hpp"
+#include "colors.hpp"
 
 class Enemy : public Actor {
 protected:
@@ -12,7 +14,7 @@ protected:
 	float moveEnemyInterval = 1.0f, moveEnemyTimer = 1.0f;
 
 	int dirx = 0, diry = 0;
-
+	Color bloodColor = colors::RED;
 public:
 	void setDir(int dx, int dy);
 	void update(float dt) override;
@@ -26,6 +28,8 @@ public:
 
 	bool uncollide(Level &level);
 	bool isInsideTile(const Level &level) const;
+
+	void squish(ParticleList &particles) const;
 };
 
 class Slime : public Enemy {

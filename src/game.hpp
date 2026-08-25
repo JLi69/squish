@@ -6,7 +6,9 @@
 #include "level.hpp"
 #include "enemies.hpp"
 #include "tilemap_gfx.hpp"
+#include "generate_level.hpp"
 #include "player.hpp"
+#include "particles.hpp"
 
 typedef std::vector<std::unique_ptr<Enemy>> EnemyList;
 
@@ -22,6 +24,7 @@ struct Camera2D {
 class Game {
 	Level level = Level(-8, -8, 8, 8);
 	EnemyList enemies;
+	ParticleList particles;
 	Player player = Player(0, 0);
 	TileVaos tileVaos;
 	Camera2D camera = Camera2D();
@@ -31,6 +34,8 @@ class Game {
 	bool pushBlocks(int prevx, int prevy, int &x, int &y);
 	// Removes all null enemies from the enemy list
 	void clearEnemyList();
+	// Removes all null particles from the particle list
+	void clearParticleList();
 
 	std::stack<std::pair<int, int>> chunksToUpdate;
 public:
@@ -46,6 +51,9 @@ public:
 	Camera2D &getCamera();
 
 	EnemyList &getEnemies();
+	ParticleList &getParticles();
+
+	void loadFromGeneratedLevel(GeneratedLevel &genLevel);
 };
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry);

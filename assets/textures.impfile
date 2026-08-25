@@ -26,3 +26,9 @@
 	"path" = "assets/textures/slime.png";
 	"flip" = "true";
 }
+
+"particle" {
+	"target" = "texture2d";
+	"path" = "assets/textures/particle.png";
+	"flip" = "true";
+}

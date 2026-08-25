@@ -60,6 +60,13 @@ void display(Game &game, int w, int h) {
 		glm::vec2 displayPos = enemy->getDisplayPos();
 		displaySprite(enemy->sprite, displayPos, game.getLevel());
 	}
+
+	setupShaderCam("particle_shader", w, h, DEFAULT_ZOOM, camMat);
+	for(const auto &particle : game.getParticles()) {
+		if(particle == nullptr)
+			continue;
+		displayParticle(*particle, game.getLevel());
+	}
 }
 
 int main(int argc, char *argv[]) {

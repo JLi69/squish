@@ -21,3 +21,9 @@
 	"vertex" = "assets/shaders/sprite_vert.glsl";
 	"fragment" = "assets/shaders/tile_shadow_frag.glsl";
 }
+
+# Shader for particles
+"particle_shader" {
+	"vertex" = "assets/shaders/sprite_vert.glsl";
+	"fragment" = "assets/shaders/particle_frag.glsl";
+}
