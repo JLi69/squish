@@ -118,6 +118,8 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 }
 
 void Game::update(float dt) {
+	time += dt;
+
 	player.update(dt);
 	// Update player
 	if(!player.translationAnimationActive) {
@@ -265,4 +267,8 @@ void Game::clearParticleList() {
 			int(particles.size())
 		);
 	}
+}
+
+float Game::getTime() const {
+	return time;
 }

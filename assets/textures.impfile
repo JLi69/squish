@@ -32,3 +32,9 @@
 	"path" = "assets/textures/particle.png";
 	"flip" = "true";
 }
+
+"heart" {
+	"target" = "texture2d";
+	"path" = "assets/textures/heart.png";
+	"flip" = "true";
+}

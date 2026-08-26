@@ -5,6 +5,8 @@
 }
 
 # Shader for a sprite
+# This is for sprites in the game world and adds some shading in order to
+# create a "3D" effect.
 "sprite_shader" {
 	"vertex" = "assets/shaders/sprite_vert.glsl";
 	"fragment" = "assets/shaders/sprite_frag.glsl";
@@ -22,8 +24,8 @@
 	"fragment" = "assets/shaders/tile_shadow_frag.glsl";
 }
 
-# Shader for particles
-"particle_shader" {
+# Shader for sprites that are to be drawn without any shading
+"flat_sprite_shader" {
 	"vertex" = "assets/shaders/sprite_vert.glsl";
-	"fragment" = "assets/shaders/particle_frag.glsl";
+	"fragment" = "assets/shaders/flat_frag.glsl";
 }

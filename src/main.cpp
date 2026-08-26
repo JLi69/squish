@@ -61,11 +61,37 @@ void display(Game &game, int w, int h) {
 		displaySprite(enemy->sprite, displayPos, game.getLevel());
 	}
 
-	setupShaderCam("particle_shader", w, h, DEFAULT_ZOOM, camMat);
+	setupShaderCam("flat_sprite_shader", w, h, DEFAULT_ZOOM, camMat);
 	for(const auto &particle : game.getParticles()) {
 		if(particle == nullptr)
 			continue;
 		displayParticle(*particle, game.getLevel());
+	}
+
+	// Display HUD
+	float zoom = 1.0f;
+	if(w < float(DEFAULT_WIDTH) * 0.5f && h < float(DEFAULT_HEIGHT) * 0.5f)
+		zoom = 0.4f;
+	else if(w < float(DEFAULT_WIDTH) * 0.75f && h < float(DEFAULT_HEIGHT) * 0.75f)
+		zoom = 0.75f;
+	else if(w > float(DEFAULT_WIDTH) * 1.25f && h > float(DEFAULT_HEIGHT) * 1.25f)
+		zoom = 1.4f;
+	glm::vec4 topLeft = glm::vec4(
+		-float(w) / 2.0f * 1.0f / zoom + 32.0f,
+		float(h) / 2.0f * 1.0f / zoom - 32.0f,
+		0.0f,
+		1.0f
+	);
+	setupShaderForUi("flat_sprite_shader", w, h, zoom);
+	for(int i = 0; i < player.getHealth(); i++) {
+		glm::vec4 pos = topLeft + glm::vec4(48.0f, 0.0f, 0.0f, 0.0f) * float(i);
+		float scale = 1.0f;
+		if(i == player.getHealth() - 1 && player.getHealth() > 1)
+			scale = sin(game.getTime() * M_PI * 0.75f) * 0.1f + 1.1f;
+		else if(i == player.getHealth() - 1 && player.getHealth() == 1)
+			scale = sin(game.getTime() * M_PI) * 0.2f + 1.1f;
+		scale *= 48.0f;
+		displayIcon("heart", Transform(pos, glm::vec2(scale)));
 	}
 }
 

@@ -26,3 +26,7 @@ void Player::update(float dt) {
 	sprite.scale.y = squishyAnimation.value();
 	sprite.offset.y = DEFAULT_PLAYER_OFFSET.y + (sprite.scale.y - DEFAULT_PLAYER_SCALE) / 2.0f;
 }
+
+int Player::getHealth() const {
+	return health;
+}

@@ -7,13 +7,29 @@
 
 const float DEFAULT_ZOOM = 0.175f;
 
+struct Transform {
+	glm::vec2 pos = glm::vec2(0.0f);
+	glm::vec2 scale = glm::vec2(1.0f);
+	float rotation = 0.0f;
+	float z = -1.0f; // z value, by default draw on top
+
+	Transform() {}
+	Transform(glm::vec2 p);
+	Transform(glm::vec2 p, glm::vec2 s);
+	Transform(glm::vec2 p, glm::vec2 s, float r);
+
+	glm::mat4 getMat() const;
+};
+
 // Returns the z index of a sprite based on the maximum and minimum y coordinates
 float getZFromY(float y, float topy, float boty);
 
 // Activates the shader that we want to use and also feeds in the window matrix
 // as a uniform to the shader
 void setupShader(const std::string &shader, int w, int h, float zoom);
+void setupShaderForUi(const std::string &shader, int w, int h, float zoom);
 void setupShaderCam(const std::string &shader, int w, int h, float zoom, const glm::mat4 &camMat);
+
 // Dispays a single chunk vao
 void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z);
 // Displays the tiles in a level
@@ -22,3 +38,5 @@ void displayLevel(const TileVaos &tileVaos);
 void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level);
 // Displays a particle
 void displayParticle(const Particle &particle, const Level &level);
+// Displays an icon
+void displayIcon(const std::string &texture, const Transform &transform);
