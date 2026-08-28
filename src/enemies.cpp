@@ -2,7 +2,7 @@
 #include "random_utils.hpp"
 #include <cmath>
 
-const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.1f);
+const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.3f);
 
 const int DIRECTION_X[] = { -1, 1,  0, 0 };
 const int DIRECTION_Y[] = {  0, 0, -1, 1 };
@@ -104,7 +104,7 @@ void Enemy::squish(ParticleList &particles) const {
 		std::unique_ptr<BloodParticle> particle = std::make_unique<BloodParticle>(
 			center + offset,
 			bloodColor,
-			float(y) + sprite.shadowOffset.y
+			float(y) + sprite.shadowOffset.y - 0.06f
 		);
 		particle->vel = glm::vec2(cos(angle) * 0.5f, sin(angle)) * 6.0f;
 		particles.push_back(std::move(particle));
@@ -117,7 +117,7 @@ Slime::Slime(int px, int py) {
 	sprite = Sprite("slime", glm::vec2(0.0f, 0.0f));
 	
 	sprite.shadowScale = glm::vec2(1.3f, 0.65f);
-	sprite.shadowOffset = glm::vec2(0.0f, -0.22f);
+	sprite.shadowOffset = glm::vec2(0.0f, -0.02f);
 
 	default_offset = DEFAULT_ENEMY_OFFSET;
 	default_scale = 0.9f;

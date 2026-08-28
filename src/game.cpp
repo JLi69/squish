@@ -110,7 +110,7 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 	}
 	else if(!level.getWallTile(x, y).isEmpty()) {
 		x = prevx;
-		y = prevy;
+		y = prevy;	
 		return false;
 	}
 
@@ -125,13 +125,37 @@ void Game::update(float dt) {
 	if(!player.translationAnimationActive) {
 		int prevx = player.x, prevy = player.y;
 		movePlayer();
-		if(pushBlocks(prevx, prevy, player.x, player.y))
-			player.activateTranslationAnimation(prevx, player.x, prevy, player.y);
+		if(pushBlocks(prevx, prevy, player.x, player.y)) {
+			int dirx = player.x - prevx,
+				diry = player.y - prevy;
+			bool canMove = true;
+			for(auto &enemy : enemies) {
+				if(enemy == nullptr)
+					continue;
+				if(enemy->x == player.x && enemy->y == player.y) {
+					enemy->setDir(dirx, diry);
+					enemy->moveEnemy(level);
+					if(enemy->x == player.x && enemy->y == player.y)
+						canMove = false;
+				}
+			}
+
+			if(canMove)
+				player.activateTranslationAnimation(prevx, player.x, prevy, player.y);
+			else {
+				player.x = prevx;
+				player.y = prevy;
+			}
+		}
 	}
 	std::set<std::pair<int ,int>> pushTileChunkUpdateList;
 	level.updatePushedTiles(dt, pushTileChunkUpdateList);
 	for(const auto &chunkpos : pushTileChunkUpdateList)
 		chunksToUpdate.push(chunkpos);	
+
+	std::set<std::pair<int, int>> enemyPositions;
+	for(const auto &enemy : enemies)
+		enemyPositions.insert({ enemy->x, enemy->y });
 
 	for(auto &enemy : enemies) {
 		if(enemy == nullptr)
@@ -151,11 +175,16 @@ void Game::update(float dt) {
 			int prevx = enemy->x;
 			int prevy = enemy->y;
 			enemy->moveEnemy(level);
-			if(enemy->isInsideTile(level)) {
+			bool undoMove = enemy->isInsideTile(level)
+				|| enemyPositions.count({ enemy->x, enemy->y })
+				|| (enemy->x == player.x && enemy->y == player.y);
+			if(undoMove) {
 				enemy->translationAnimationActive = false;
 				enemy->x = prevx;
 				enemy->y = prevy;
 			}
+			else
+				enemyPositions.insert({ enemy->x, enemy->y });
 		}
 		enemy->updateDir(level, player);	
 	}

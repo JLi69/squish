@@ -54,6 +54,7 @@ GeneratedLevel genTestLevel() {
 	testLevel.setWallTile(-1, 0, "crate");
 
 	genLevel.spawnEnemy(std::make_unique<Slime>(-3, 0));
+	genLevel.spawnEnemy(std::make_unique<Slime>(0, -3));
 	genLevel.level = testLevel;
 
 	return genLevel;
