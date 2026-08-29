@@ -237,6 +237,24 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 		}
 	}
 
+	std::set<std::pair<int, int>> cannotSpawn;
+	for(int x = -CAVE_SIZE; x <= CAVE_SIZE; x++) {
+		for(int y = -CAVE_SIZE; y <= CAVE_SIZE; y++) {
+			if(!level.getWallTile(x, y).isEmpty())
+				continue;
+			if(cannotSpawn.count({ x, y }))
+				continue;
+			if(abs(x) <= 8 && abs(y) <= 8)
+				continue;
+			if(random() % 80 == 0) {
+				genLevel.spawnEnemy(std::make_unique<Slime>(x, y));
+				for(int dx = -1; dx <= 1; dx++)
+					for(int dy = -1; dy <= 1; dy++)
+						cannotSpawn.insert({ x + dx, y + dy });
+			}
+		}
+	}
+
 	return genLevel;
 }
 

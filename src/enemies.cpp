@@ -139,10 +139,11 @@ Slime::Slime(int px, int py) {
 	sprite.scale = glm::vec2(default_scale, default_scale);
 
 	squishyAnimation = AnimationValue(default_scale - 0.1f, default_scale + 0.1f, 0.5f);
-	squishyAnimation.time = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
+	squishyAnimation.time = randf_range(0.0f, 1.0f);
 	squishyAnimation.loop = true;
 
 	moveEnemyTimer = Timer(1.0f, true);
+	moveEnemyTimer.currentTime = randf_range(0.0f, 1.0f);
 	attackTimer = Timer(0.75f, true);
 
 	bloodColor = colors::SLIME_GREEN;
@@ -152,7 +153,7 @@ void Slime::updateDir(const Level &level, const Player &player) {
 	int distx = std::abs(player.x - x);
 	int disty = std::abs(player.y - y);
 
-	if(distx > 16 || disty > 16 || (distx == 0 && disty == 0)) {
+	if(distx > 10 || disty > 10 || (distx == 0 && disty == 0)) {
 		setDir(0, 0);
 		return;
 	}
