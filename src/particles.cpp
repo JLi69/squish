@@ -45,3 +45,24 @@ void BloodParticle::update(float dt) {
 bool BloodParticle::finished() const {
 	return currentScale <= 0.0f;
 }
+
+void addBloodParticles(
+	ParticleList &particles,
+	int count,
+	glm::vec2 center,
+	Color bloodColor,
+	float floory
+) {
+	for(int i = 0; i < count; i++) {
+		float angle = randf_range(0.0f, 2.0f * M_PI);
+		float dist = randf_range(0.0f, 0.3f);
+		glm::vec2 offset = glm::vec2(cos(angle), sin(angle)) * dist;
+		std::unique_ptr<BloodParticle> particle = std::make_unique<BloodParticle>(
+			center + offset,
+			bloodColor,
+			floory
+		);
+		particle->vel = glm::vec2(cos(angle) * 0.5f, sin(angle)) * 6.0f;
+		particles.push_back(std::move(particle));
+	}
+}

@@ -1,5 +1,7 @@
 #include "player.hpp"
 
+const float PLAYER_DAMAGE_FLASH_TIME = 0.5f;
+
 Player::Player(int px, int py) {
 	x = px;
 	y = py;
@@ -21,6 +23,8 @@ Player::Player(int px, int py) {
 
 void Player::update(float dt) {
 	Actor::update(dt);
+
+	playerDamageTimer = std::max(playerDamageTimer - dt, 0.0f);
 	
 	squishyAnimation.update(dt);
 	sprite.scale.y = squishyAnimation.value();
@@ -29,4 +33,29 @@ void Player::update(float dt) {
 
 int Player::getHealth() const {
 	return health;
+}
+
+void Player::damage(int amt) {
+	health = std::max(health - amt, 0);
+	playerDamageTimer = PLAYER_DAMAGE_FLASH_TIME;
+}
+
+bool Player::isDead() const {
+	return health <= 0;
+}
+
+void Player::explode(ParticleList &particles) {
+	glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
+	float floory = float(y) + sprite.shadowOffset.y - 0.06f;
+	addBloodParticles(particles, 24, center, colors::SLIME_GREEN, floory);
+}
+
+Color Player::getColor() const {
+	float t = playerDamageTimer / PLAYER_DAMAGE_FLASH_TIME;
+	return colors::RED * t + colors::BLACK * (1.0f - t);
+}
+
+Color Player::getMultColor() const {
+	float t = playerDamageTimer / PLAYER_DAMAGE_FLASH_TIME;
+	return Color(1.0f, 0.4f, 0.4f, 1.0f) * t + colors::WHITE * (1.0f - t);
 }

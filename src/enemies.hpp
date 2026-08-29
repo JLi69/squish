@@ -5,21 +5,26 @@
 #include "player.hpp"
 #include "particles.hpp"
 #include "colors.hpp"
+#include "timer.hpp"
 
 class Enemy : public Actor {
 protected:
 	AnimationValue squishyAnimation;
 	glm::vec2 default_offset = glm::vec2(0.0f);
-	float default_scale = 1.0f;
-	float moveEnemyInterval = 1.0f, moveEnemyTimer = 1.0f;
+	float default_scale = 1.0f;	
+	int damage = 1;
 
 	int dirx = 0, diry = 0;
 	Color bloodColor = colors::RED;
+	
+	AnimationValue attackOffsetX, attackOffsetY;
 public:
+	Timer moveEnemyTimer;
+	Timer attackTimer;
+	bool attackAnimationActive = false;
+
 	void setDir(int dx, int dy);
 	void update(float dt) override;
-	// Returns true when the enemy should move
-	bool updateMoveTimer(float dt);
 	virtual void moveEnemy(Level &level);
 	virtual void updateDir(const Level &level, const Player &player);
 
@@ -30,6 +35,11 @@ public:
 	bool isInsideTile(const Level &level) const;
 
 	void squish(ParticleList &particles) const;
+
+	virtual bool canAttackPlayer(const Player &player);
+	virtual void attackPlayer(Player &player);
+
+	glm::vec2 getDisplayPos() const override;
 };
 
 class Slime : public Enemy {

@@ -120,9 +120,10 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 void Game::update(float dt) {
 	time += dt;
 
+	bool playerCurrentlyDead = player.isDead();
 	player.update(dt);
 	// Update player
-	if(!player.translationAnimationActive) {
+	if(!player.translationAnimationActive && !player.isDead()) {
 		int prevx = player.x, prevy = player.y;
 		movePlayer();
 		if(pushBlocks(prevx, prevy, player.x, player.y)) {
@@ -171,7 +172,7 @@ void Game::update(float dt) {
 		}
 
 		enemy->update(dt);
-		if(!enemy->isInsideTile(level) && enemy->updateMoveTimer(dt)) {
+		if(!enemy->isInsideTile(level) && enemy->moveEnemyTimer.update(dt)) {
 			int prevx = enemy->x;
 			int prevy = enemy->y;
 			enemy->moveEnemy(level);
@@ -186,7 +187,10 @@ void Game::update(float dt) {
 			else
 				enemyPositions.insert({ enemy->x, enemy->y });
 		}
-		enemy->updateDir(level, player);	
+		enemy->updateDir(level, player);
+
+		if(!enemy->attackAnimationActive && enemy->attackTimer.update(dt) && enemy->canAttackPlayer(player))
+			enemy->attackPlayer(player);
 	}
 
 	for(auto &particle : particles) {
@@ -203,6 +207,10 @@ void Game::update(float dt) {
 
 	clearEnemyList();
 	clearParticleList();
+
+	// The player just died
+	if(!playerCurrentlyDead && player.isDead())
+		player.explode(particles);
 }
 
 void Game::updateChunkVaos() {

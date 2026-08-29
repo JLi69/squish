@@ -14,24 +14,18 @@ void Enemy::setDir(int dx, int dy) {
 
 void Enemy::update(float dt) {
 	Actor::update(dt);
+
+	if(attackOffsetX.time <= 0.0f || attackOffsetY.time <= 0.0f)
+		attackAnimationActive = false;
+
+	if(attackAnimationActive) {
+		attackOffsetX.update(dt);
+		attackOffsetY.update(dt);
+	}
 	
 	squishyAnimation.update(dt);
 	sprite.scale.y = squishyAnimation.value();
 	sprite.offset.y = default_offset.y + (sprite.scale.y - default_scale) / 2.0f;
-}
-
-bool Enemy::updateMoveTimer(float dt) {
-	if(translationAnimationActive)
-		return false;
-
-	moveEnemyTimer -= dt;
-	
-	if(moveEnemyTimer <= 0.0f) {
-		moveEnemyTimer = moveEnemyInterval;
-		return true;
-	}
-
-	return false;
 }
 
 void Enemy::moveEnemy(Level &level) {
@@ -96,19 +90,38 @@ bool Enemy::isInsideTile(const Level &level) const {
 
 void Enemy::squish(ParticleList &particles) const {
 	int count = rand() % 6 + 10;
-	for(int i = 0; i < count; i++) {
-		glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
-		float angle = randf_range(0.0f, 2.0f * M_PI);
-		float dist = randf_range(0.0f, 0.3f);
-		glm::vec2 offset = glm::vec2(cos(angle), sin(angle)) * dist;
-		std::unique_ptr<BloodParticle> particle = std::make_unique<BloodParticle>(
-			center + offset,
-			bloodColor,
-			float(y) + sprite.shadowOffset.y - 0.06f
-		);
-		particle->vel = glm::vec2(cos(angle) * 0.5f, sin(angle)) * 6.0f;
-		particles.push_back(std::move(particle));
+	glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
+	float floory = float(y) + sprite.shadowOffset.y - 0.06f;
+	addBloodParticles(particles, count, center, bloodColor, floory);
+}
+
+bool Enemy::canAttackPlayer(const Player &player) {
+	int dist = std::abs(player.x - x) + std::abs(player.y - y);
+	return dist <= 1;
+}
+
+void Enemy::attackPlayer(Player &player) {
+	if(player.isDead()) {
+		attackAnimationActive = false;
+		return;
 	}
+
+	attackOffsetX = AnimationValue(0.0f, (float(player.x) - float(x)) * 0.35f, 0.15f);
+	attackOffsetX.loop = true;
+	attackOffsetX.time = 0.01f;
+	attackOffsetY = AnimationValue(0.0f, (float(player.y) - float(y)) * 0.5f, 0.15f);
+	attackOffsetY.loop = true;
+	attackOffsetY.time = 0.01f;
+	attackAnimationActive = true;
+	player.damage(damage);
+}
+
+glm::vec2 Enemy::getDisplayPos() const {
+	if(attackAnimationActive) {
+		glm::vec2 offset = glm::vec2(attackOffsetX.value(), attackOffsetY.value());
+		return Actor::getDisplayPos() + offset;
+	}
+	return Actor::getDisplayPos();
 }
 
 Slime::Slime(int px, int py) {
@@ -129,8 +142,8 @@ Slime::Slime(int px, int py) {
 	squishyAnimation.time = static_cast<float>(rand()) / static_cast<float>(RAND_MAX);
 	squishyAnimation.loop = true;
 
-	moveEnemyInterval = 1.0f;
-	moveEnemyTimer = moveEnemyInterval;
+	moveEnemyTimer = Timer(1.0f, true);
+	attackTimer = Timer(0.75f, true);
 
 	bloodColor = colors::SLIME_GREEN;
 }

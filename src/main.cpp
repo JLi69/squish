@@ -47,13 +47,19 @@ void display(Game &game, int w, int h) {
 		VAOS->draw();
 	}
 
-	// Display player
+	// Display player	
+	const Player &player = game.getPlayer();
 	setupShaderCam("shadow_shader", w, h, DEFAULT_ZOOM, camMat);
 	setupShaderCam("sprite_shader", w, h, DEFAULT_ZOOM, camMat);
-	const Player &player = game.getPlayer();
-	glm::vec2 playerPos = player.getDisplayPos();
-	displaySprite(player.sprite, playerPos, game.getLevel());
+	SHADERS->getShader("sprite_shader").uniformVec4("color", player.getColor());
+	SHADERS->getShader("sprite_shader").uniformVec4("multColor", player.getMultColor());
+	if(!player.isDead()) {	
+		glm::vec2 playerPos = player.getDisplayPos();
+		displaySprite(player.sprite, playerPos, game.getLevel());
+	}
 
+	SHADERS->getShader("sprite_shader").uniformVec4("multColor", colors::WHITE);
+	SHADERS->getShader("sprite_shader").uniformVec4("color", colors::BLACK);
 	for(const auto &enemy : game.getEnemies()) {
 		if(enemy == nullptr)
 			continue;

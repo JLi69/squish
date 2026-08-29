@@ -7,6 +7,8 @@ in vec3 fragpos;
 out vec4 fragColor;
 
 uniform bool flipVert;
+uniform vec4 multColor;
+uniform vec4 color;
 
 void main() {
 	float brightness = pow(fragpos.y + 0.5, 0.5) * 0.7 + 0.3;
@@ -18,6 +20,10 @@ void main() {
 	fragColor.r *= brightness;
 	fragColor.g *= brightness;
 	fragColor.b *= brightness;
+	
+	fragColor *= multColor;
+	fragColor += vec4(color.rgb, 0.0);
+	fragColor = min(fragColor, 1.0);
 	if(fragColor.a < 0.1)
 		discard;
 }
