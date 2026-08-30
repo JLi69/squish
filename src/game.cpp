@@ -133,6 +133,10 @@ void Game::update(float dt) {
 			for(auto &enemy : enemies) {
 				if(enemy == nullptr)
 					continue;
+				if(enemy->attackAnimationActive) {
+					canMove = false;
+					continue;
+				}
 				if(enemy->x == player.x && enemy->y == player.y) {
 					enemy->setDir(dirx, diry);
 					enemy->moveEnemy(level);

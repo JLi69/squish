@@ -7,6 +7,8 @@
 #include "colors.hpp"
 #include "timer.hpp"
 
+const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.3f);
+
 class Enemy : public Actor {
 protected:
 	AnimationValue squishyAnimation;
