@@ -27,6 +27,12 @@
 	"flip" = "true";
 }
 
+"snake" {
+	"target" = "texture2d";
+	"path" = "assets/textures/snake.png";
+	"flip" = "true";
+}
+
 "particle" {
 	"target" = "texture2d";
 	"path" = "assets/textures/particle.png";

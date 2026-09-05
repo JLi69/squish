@@ -49,3 +49,9 @@ public:
 	Slime(int px, int py);
 	void updateDir(const Level &level, const Player &player) override;
 };
+
+class Snake : public Enemy {
+public:
+	Snake(int px, int py);
+	void updateDir(const Level &level, const Player &player) override;
+};

@@ -28,5 +28,8 @@ clean:
 run: output
 	./$(BIN_NAME)
 
+test_scene:
+	./$(BIN_NAME) --test
+
 test: $(OBJ)
 	@cd tests && make -j$(nproc)
