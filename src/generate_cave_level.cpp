@@ -181,7 +181,7 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 				continue;
 			if(abs(x) <= 8 && abs(y) <= 8)
 				continue;
-			if(random() % 80 == 0) {
+			if(random() % 72 == 0) {
 				spawnEnemy(genLevel, x, y);
 				for(int dx = -1; dx <= 1; dx++)
 					for(int dy = -1; dy <= 1; dy++)

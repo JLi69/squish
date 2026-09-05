@@ -4,9 +4,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
 
+const int MAX_PLAYER_DIST_DEPTH = 15;
+
 void Game::loadFromGeneratedLevel(GeneratedLevel &genLevel) {
 	level = genLevel.level;
 	enemies = std::move(genLevel.enemies);
+	level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
 }
 
 glm::mat4 Camera2D::getMat() const {
@@ -145,8 +148,10 @@ void Game::update(float dt) {
 				}
 			}
 
-			if(canMove)
+			if(canMove) {
 				player.activateTranslationAnimation(prevx, player.x, prevy, player.y);
+				level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
+			}
 			else {
 				player.x = prevx;
 				player.y = prevy;
@@ -277,9 +282,6 @@ void Game::clearEnemyList() {
 		enemies.pop_back();
 		removed++;
 	}
-
-	if(removed > 0)
-		fprintf(stderr, "DEBUG: removed %d enemies.\n", removed);
 }
 
 void Game::clearParticleList() {
@@ -298,15 +300,6 @@ void Game::clearParticleList() {
 		particles.at(index) = std::move(particles.at(particles.size() - 1));
 		particles.pop_back();
 		removed++;
-	}
-
-	if(removed > 0) {
-		fprintf(
-			stderr,
-			"DEBUG: removed %d particles, %d particles left.\n", 
-			removed, 
-			int(particles.size())
-		);
 	}
 }
 

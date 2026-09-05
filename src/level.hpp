@@ -19,6 +19,7 @@ class Level {
 	TileMap floorTiles;
 	TileMap wallTiles;
 	std::map<std::pair<int, int>, PushedTile> pushedTiles;
+	std::map<std::pair<int, int>, uint32_t> distToPlayer;
 public:
 	// Constructor
 	Level(int lx, int by, int rx, int ty);
@@ -44,4 +45,7 @@ public:
 	bool isBlocked(int x, int y) const;
 	void updatePushedTiles(float dt, std::set<std::pair<int ,int>> &chunksToUpdate);
 	const std::map<std::pair<int, int>, PushedTile> &getPushedTiles() const;
+
+	void updateDistToPlayerMap(int playerx, int playery, int maxDepth);
+	uint32_t getDistToPlayer(int x, int y) const;
 };

@@ -1,5 +1,6 @@
 #include "level.hpp"
 #include "tilemap_gfx.hpp"
+#include <queue>
 
 PushedTile::PushedTile(int startx, int starty, int dirx, int diry, Tile t) {
 	translateX = AnimationValue(
@@ -110,4 +111,44 @@ void Level::updatePushedTiles(float dt, std::set<std::pair<int ,int>> &chunksToU
 
 const std::map<std::pair<int, int>, PushedTile>& Level::getPushedTiles() const {
 	return pushedTiles;
+}
+
+void Level::updateDistToPlayerMap(int playerx, int playery, int maxDepth) {
+	distToPlayer.clear();
+
+	struct BFSQueueItem {
+		int x, y;
+		uint32_t dist;
+	};
+
+	std::queue<BFSQueueItem> bfsQueue;
+	bfsQueue.push({ .x = playerx, .y = playery, .dist = 0 });
+
+	const int DIFF_X[] = { 1, -1, 0, 0 };
+	const int DIFF_Y[] = { 0, 0, 1, -1 };
+
+	while(!bfsQueue.empty()) {
+		BFSQueueItem top = bfsQueue.front();
+		bfsQueue.pop();
+		if(top.dist > maxDepth)
+			continue;
+		if(distToPlayer.count({ top.x, top.y }))
+			continue;
+		if(!getWallTile(top.x, top.y).isEmpty())
+			continue;
+		distToPlayer.insert({ { top.x, top.y }, top.dist });
+		for(int i = 0; i < 4; i++) {
+			bfsQueue.push({ 
+				.x = top.x + DIFF_X[i], 
+				.y = top.y + DIFF_Y[i],
+				.dist = top.dist + 1,
+			});
+		}
+	}
+}
+
+uint32_t Level::getDistToPlayer(int x, int y) const {
+	if(!distToPlayer.count({ x, y }))
+		return UINT32_MAX;
+	return distToPlayer.at({ x, y });
 }
