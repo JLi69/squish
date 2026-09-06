@@ -54,13 +54,18 @@ void Game::movePlayer() {
 	int dx = 0,
 		dy = 0;
 	// Move the player
+	// First attempt to move the player up/down
 	if(getKeyInputState(GLFW_KEY_UP) == JUST_PRESSED)
 		dy++;
 	if(getKeyInputState(GLFW_KEY_DOWN) == JUST_PRESSED)
 		dy--;
+	// Check if the player can even move in that direction
+	// (can push a block or the tile the player is moving into is just empty)
 	Tile aboveTile = level.getWallTile(player.x, player.y + dy);
 	if(!canPush(level, player.x, player.y + dy, dx, dy) && !aboveTile.isEmpty())
-		dy = 0;
+		dy = 0; // Set the y direction to be 0 if it is not possible
+	// If the player did not move in the y direction or can not move in the
+	// y direction, try checking if the player is moving in the x direction
 	if(dy == 0) {
 		if(getKeyInputState(GLFW_KEY_RIGHT) == JUST_PRESSED)
 			dx++;
@@ -68,11 +73,13 @@ void Game::movePlayer() {
 			dx--;
 	}
 
+	// Flip the player to face the direction they are moving in
 	if(dx < 0)
 		player.sprite.flip = true;
 	else if(dx > 0)
 		player.sprite.flip = false;
 
+	// Move
 	player.x += dx;
 	player.y += dy;
 }
@@ -129,33 +136,32 @@ void Game::update(float dt) {
 	if(!player.translationAnimationActive && !player.isDead()) {
 		int prevx = player.x, prevy = player.y;
 		movePlayer();
-		if(pushBlocks(prevx, prevy, player.x, player.y)) {
-			int dirx = player.x - prevx,
-				diry = player.y - prevy;
-			bool canMove = true;
-			for(auto &enemy : enemies) {
-				if(enemy == nullptr)
-					continue;
-				if(enemy->attackAnimationActive) {
+		int dirx = player.x - prevx,
+			diry = player.y - prevy;
+		bool canMove = true;
+		for(auto &enemy : enemies) {
+			if(enemy == nullptr)
+				continue;
+			if(enemy->attackAnimationActive) {
+				canMove = false;
+				continue;
+			}
+			if(enemy->x == player.x && enemy->y == player.y) {
+				enemy->setDir(dirx, diry);
+				enemy->moveEnemy(level);
+				if(enemy->x == player.x && enemy->y == player.y)
 					canMove = false;
-					continue;
-				}
-				if(enemy->x == player.x && enemy->y == player.y) {
-					enemy->setDir(dirx, diry);
-					enemy->moveEnemy(level);
-					if(enemy->x == player.x && enemy->y == player.y)
-						canMove = false;
-				}
 			}
+		}
 
-			if(canMove) {
-				player.activateTranslationAnimation(prevx, player.x, prevy, player.y);
-				level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
-			}
-			else {
-				player.x = prevx;
-				player.y = prevy;
-			}
+		if(!canMove) {
+			player.x = prevx;
+			player.y = prevy;
+		}
+
+		if(canMove && pushBlocks(prevx, prevy, player.x, player.y)) {
+			player.activateTranslationAnimation(prevx, player.x, prevy, player.y);
+			level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
 		}
 	}
 	std::set<std::pair<int ,int>> pushTileChunkUpdateList;

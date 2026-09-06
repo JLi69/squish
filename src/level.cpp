@@ -136,8 +136,12 @@ void Level::updateDistToPlayerMap(int playerx, int playery, int maxDepth) {
 			continue;
 		if(!getWallTile(top.x, top.y).isEmpty())
 			continue;
-		distToPlayer.insert({ { top.x, top.y }, top.dist });
+		distToPlayer[{ top.x, top.y }] = top.dist;
 		for(int i = 0; i < 4; i++) {
+			int adjx = top.x + DIFF_X[i],
+				adjy = top.y + DIFF_Y[i];
+			if(distToPlayer.count({ adjx, adjy }) && distToPlayer.at({ adjx, adjy }) <= top.dist + 1)
+				continue;
 			bfsQueue.push({ 
 				.x = top.x + DIFF_X[i], 
 				.y = top.y + DIFF_Y[i],
