@@ -31,6 +31,22 @@ glm::mat4 Transform::getMat() const {
 	return transform;
 }
 
+BoundingRectangle::BoundingRectangle(glm::vec2 botLeftPos, glm::vec2 topRightPos) {
+	botLeft = botLeftPos;
+	topRight = topRightPos;
+}
+
+bool BoundingRectangle::insideCameraView(const glm::mat4 &windowCamMat) const {
+	glm::vec2 BOT_LEFT_CAMERA_VIEW = glm::vec2(-1.0f, -1.0f);
+	glm::vec2 TOP_RIGHT_CAMERA_VIEW = glm::vec2(1.0f, 1.0f);
+	glm::vec2 windowCamBotLeft = windowCamMat * glm::vec4(botLeft, 0.0f, 1.0f);
+	glm::vec2 windowCamTopRight = windowCamMat * glm::vec4(topRight, 0.0f, 1.0f);
+	return windowCamBotLeft.x <= TOP_RIGHT_CAMERA_VIEW.x
+		&& windowCamBotLeft.y <= TOP_RIGHT_CAMERA_VIEW.y
+		&& windowCamTopRight.x >= BOT_LEFT_CAMERA_VIEW.x
+		&& windowCamTopRight.y >= BOT_LEFT_CAMERA_VIEW.y;
+}
+
 float getZFromY(float y, float topy, float boty) {
 	return (y - topy) / float(topy - boty);
 }
@@ -71,10 +87,11 @@ void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offs
 	glDrawElements(GL_TRIANGLES, tileVao.vertcount, GL_UNSIGNED_INT, 0);
 }
 
-void displayLevel(const TileVaos &tileVaos) {
+int displayLevel(const TileVaos &tileVaos, const glm::mat4 &windowCamMat) {
 	ShaderProgram &tileShader = SHADERS->getShader("tile_shader");
 	TEXTURES->bindTexture("tiles", GL_TEXTURE0);	
 	tileShader.uniformVec2("textureScale", glm::vec2(16.0f, 16.0f));
+	int chunksDrawn = 0;
 	// Draw level
 	for(const auto &tileVao : tileVaos) {
 		const std::pair<int, int> &coords = tileVao.first;
@@ -83,14 +100,45 @@ void displayLevel(const TileVaos &tileVaos) {
 			float(coords.first * CHUNK_SIZE),
 			float(coords.second * CHUNK_SIZE)
 		);
+
+		// Check if the chunk is inside the camera and if it is not,
+		// don't draw it
+		glm::vec2 topLeft = offset - glm::vec2(1.0f, 1.0f);
+		glm::vec2 botRight = offset + glm::vec2(CHUNK_SIZE + 1.0f, CHUNK_SIZE + 1.0f);
+		BoundingRectangle boundingRect = BoundingRectangle(topLeft, botRight);
+		if(!boundingRect.insideCameraView(windowCamMat))
+			continue;
+
 		displayChunk(vao, tileShader, offset, 0.0f);
+		chunksDrawn++;
 	}
+
+	return chunksDrawn;
 }
 
-void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level) {
+bool displaySprite(
+	const Sprite &sprite,
+	glm::vec2 pos,
+	const Level &level,
+	const glm::mat4 &windowCamMat
+) {
 	VAOS->bind("quad");
 	ShaderProgram &shadowShader = SHADERS->getShader("shadow_shader");
 	ShaderProgram &spriteShader = SHADERS->getShader("sprite_shader");
+
+	float displayy = pos.y + sprite.offset.y;
+	float z = getZFromY(pos.y, float(level.getTopY()), float(level.getBottomY()));
+	glm::vec3 displayPos = glm::vec3(pos.x + sprite.offset.x, displayy, z);
+	glm::mat4 transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, displayPos);
+	transform = glm::scale(transform, glm::vec3(sprite.scale, 1.0f));
+	transform = glm::rotate(transform, glm::radians(sprite.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+
+	glm::vec2 botLeft = transform * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f),
+		topRight = transform * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+	BoundingRectangle boundingRect(botLeft, topRight);
+	if(!boundingRect.insideCameraView(windowCamMat))
+		return false;
 	
 	// Display shadow
 	if(sprite.drawShadow) {
@@ -105,24 +153,37 @@ void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level) {
 
 	// Display the sprite
 	spriteShader.use();
-	spriteShader.uniformBool("flipVert", sprite.flip);
-	float displayy = pos.y + sprite.offset.y;
-	float z = getZFromY(pos.y, float(level.getTopY()), float(level.getBottomY()));
-	glm::vec3 displayPos = glm::vec3(pos.x + sprite.offset.x, displayy, z);
-	glm::mat4 transform = glm::mat4(1.0f);
-	transform = glm::translate(transform, displayPos);
-	transform = glm::scale(transform, glm::vec3(sprite.scale, 1.0f));
-	transform = glm::rotate(transform, glm::radians(sprite.rotation), glm::vec3(0.0f, 0.0f, 1.0f));
+	spriteShader.uniformBool("flipVert", sprite.flip);	
 	spriteShader.uniformMat4x4("transform", transform);
 	TEXTURES->bindTexture(sprite.spriteTexId, GL_TEXTURE0);
 	VAOS->draw();
+
+	return true;
 }
 
 
-void displayParticle(const Particle &particle, const Level &level) {
+bool displayParticle(const Particle &particle, const Level &level, const glm::mat4 &windowCamMat) {
 	VAOS->bind("quad");
 	ShaderProgram &spriteShader = SHADERS->getShader("flat_sprite_shader");
 	ShaderProgram &shadowShader = SHADERS->getShader("shadow_shader");
+
+	float displayy = particle.position.y + particle.sprite.offset.y;
+	float z = getZFromY(particle.floory, float(level.getTopY()), float(level.getBottomY()));
+	glm::vec3 displayPos = glm::vec3(particle.position.x + particle.sprite.offset.x, displayy, z);
+	glm::mat4 transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, displayPos);
+	transform = glm::scale(transform, glm::vec3(particle.sprite.scale, 1.0f));
+	transform = glm::rotate(
+		transform,
+		glm::radians(particle.sprite.rotation), 
+		glm::vec3(0.0f, 0.0f, 1.0f)
+	);
+
+	glm::vec2 botLeft = transform * glm::vec4(-1.0f, -1.0f, 0.0f, 1.0f),
+		topRight = transform * glm::vec4(1.0f, 1.0f, 0.0f, 1.0f);
+	BoundingRectangle boundingRect(botLeft, topRight);
+	if(!boundingRect.insideCameraView(windowCamMat))
+		return false;
 	
 	// Display shadow
 	if(particle.sprite.drawShadow) {
@@ -137,22 +198,13 @@ void displayParticle(const Particle &particle, const Level &level) {
 	}
 
 	spriteShader.use();
-	spriteShader.uniformBool("flipVert", particle.sprite.flip);
-	float displayy = particle.position.y + particle.sprite.offset.y;
-	float z = getZFromY(particle.floory, float(level.getTopY()), float(level.getBottomY()));
-	glm::vec3 displayPos = glm::vec3(particle.position.x + particle.sprite.offset.x, displayy, z);
-	glm::mat4 transform = glm::mat4(1.0f);
-	transform = glm::translate(transform, displayPos);
-	transform = glm::scale(transform, glm::vec3(particle.sprite.scale, 1.0f));
-	transform = glm::rotate(
-		transform,
-		glm::radians(particle.sprite.rotation), 
-		glm::vec3(0.0f, 0.0f, 1.0f)
-	);
+	spriteShader.uniformBool("flipVert", particle.sprite.flip);	
 	spriteShader.uniformMat4x4("transform", transform);
 	spriteShader.uniformVec4("color", particle.color);
 	TEXTURES->bindTexture(particle.sprite.spriteTexId, GL_TEXTURE0);
 	VAOS->draw();
+
+	return true;
 }
 
 void displayIcon(const std::string &texture, const Transform &transform) {

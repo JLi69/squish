@@ -15,10 +15,12 @@ void display(Game &game, int w, int h) {
 
 	Camera2D &camera = game.getCamera();
 	glm::mat4 camMat = camera.getMat();
+	glm::mat4 windowMat = calculateWindowMat(w, h, DEFAULT_ZOOM);
+	glm::mat4 windowCamMat = windowMat * camMat;
 
 	// Display level
 	setupShaderCam("tile_shader", w, h, DEFAULT_ZOOM, camMat);
-	displayLevel(game.getTileVaos());
+	displayLevel(game.getTileVaos(), windowCamMat);
 
 	// Display pushed blocks	
 	TEXTURES->bindTexture("tiles", GL_TEXTURE0);
@@ -55,23 +57,27 @@ void display(Game &game, int w, int h) {
 	SHADERS->getShader("sprite_shader").uniformVec4("multColor", player.getMultColor());
 	if(!player.isDead()) {	
 		glm::vec2 playerPos = player.getDisplayPos();
-		displaySprite(player.sprite, playerPos, game.getLevel());
+		displaySprite(player.sprite, playerPos, game.getLevel(), windowCamMat);
 	}
 
 	SHADERS->getShader("sprite_shader").uniformVec4("multColor", colors::WHITE);
 	SHADERS->getShader("sprite_shader").uniformVec4("color", colors::BLACK);
+	unsigned int spriteCount = 0;
 	for(const auto &enemy : game.getEnemies()) {
 		if(enemy == nullptr)
 			continue;
 		glm::vec2 displayPos = enemy->getDisplayPos();
-		displaySprite(enemy->sprite, displayPos, game.getLevel());
+		if(displaySprite(enemy->sprite, displayPos, game.getLevel(), windowCamMat))
+			spriteCount++;
 	}
 
 	setupShaderCam("flat_sprite_shader", w, h, DEFAULT_ZOOM, camMat);
+	unsigned int particleCount = 0;
 	for(const auto &particle : game.getParticles()) {
 		if(particle == nullptr)
 			continue;
-		displayParticle(*particle, game.getLevel());
+		if(displayParticle(*particle, game.getLevel(), windowCamMat))
+			particleCount++;
 	}
 
 	// Display HUD

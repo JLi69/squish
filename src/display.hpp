@@ -21,6 +21,12 @@ struct Transform {
 	glm::mat4 getMat() const;
 };
 
+struct BoundingRectangle {
+	glm::vec2 botLeft, topRight;
+	BoundingRectangle(glm::vec2 botLeftPos, glm::vec2 topRightPos);
+	bool insideCameraView(const glm::mat4 &windowCamMat) const;
+};
+
 // Returns the z index of a sprite based on the maximum and minimum y coordinates
 float getZFromY(float y, float topy, float boty);
 
@@ -33,10 +39,19 @@ void setupShaderCam(const std::string &shader, int w, int h, float zoom, const g
 // Dispays a single chunk vao
 void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z);
 // Displays the tiles in a level
-void displayLevel(const TileVaos &tileVaos);
+int displayLevel(const TileVaos &tileVaos, const glm::mat4 &windowCamMat);
 // Displays a sprite at a position (along with a shadow beneath the sprite)
-void displaySprite(const Sprite &sprite, glm::vec2 pos, const Level &level);
+bool displaySprite(
+	const Sprite &sprite,
+	glm::vec2 pos, 
+	const Level &level, 
+	const glm::mat4 &windowCamMat
+);
 // Displays a particle
-void displayParticle(const Particle &particle, const Level &level);
+bool displayParticle(
+	const Particle &particle,
+	const Level &level,
+	const glm::mat4 &windowCamMat
+);
 // Displays an icon
 void displayIcon(const std::string &texture, const Transform &transform);
