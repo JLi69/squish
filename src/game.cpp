@@ -167,7 +167,9 @@ void Game::update(float dt) {
 	std::set<std::pair<int ,int>> pushTileChunkUpdateList;
 	level.updatePushedTiles(dt, pushTileChunkUpdateList);
 	for(const auto &chunkpos : pushTileChunkUpdateList)
-		chunksToUpdate.push(chunkpos);	
+		chunksToUpdate.push(chunkpos);
+	if(!pushTileChunkUpdateList.empty())
+		level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
 
 	std::set<std::pair<int, int>> enemyPositions;
 	for(const auto &enemy : enemies)

@@ -6,6 +6,7 @@
 #include "particles.hpp"
 #include "colors.hpp"
 #include "timer.hpp"
+#include <functional>
 
 const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.3f);
 
@@ -55,3 +56,8 @@ public:
 	Snake(int px, int py);
 	void updateDir(const Level &level, const Player &player) override;
 };
+
+typedef std::function<std::unique_ptr<Enemy>(int, int)> EnemySpawner;
+typedef std::vector<std::pair<int, EnemySpawner>> EnemySpawnWeights;
+
+EnemySpawner getRandEnemy(const EnemySpawnWeights &weights, unsigned int randval);

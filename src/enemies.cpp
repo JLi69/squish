@@ -116,3 +116,21 @@ glm::vec2 Enemy::getDisplayPos() const {
 	}
 	return Actor::getDisplayPos();
 }
+
+EnemySpawner getRandEnemy(const EnemySpawnWeights &weights, unsigned int randval) {
+	unsigned int total = 0;
+	for(const auto &weight : weights)
+		total += weight.first;
+
+	unsigned int val = (randval % total) + 1;
+	unsigned int current = 0;
+	for(const auto &weight : weights) {
+		current += weight.first;
+		if(current >= val)
+			return weight.second;
+	}
+
+	return [&](int x, int y) {
+		return nullptr;
+	};
+}

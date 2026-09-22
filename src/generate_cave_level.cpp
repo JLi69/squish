@@ -6,6 +6,11 @@ const int CAVE_SIZE = 96;
 const int ROOM_DIST = 5;
 const int MARGIN = 16;
 
+const EnemySpawnWeights CAVE_ENEMIES = {
+	{ 2, [](int x, int y) { return std::make_unique<Slime>(x, y); } },
+	{ 1, [](int x, int y) { return std::make_unique<Snake>(x, y); } },
+};
+
 static void createDungeonRoom(
 	Level &level,
 	Room room,
@@ -73,11 +78,11 @@ static bool addNewRooms(
 	return false;
 }
 
-static void spawnEnemy(GeneratedLevel &genLevel, int x, int y) {
-	if(random() % 3 == 0)
-		genLevel.spawnEnemy(std::make_unique<Snake>(x, y));
-	else
-		genLevel.spawnEnemy(std::make_unique<Slime>(x, y));
+static void spawnEnemy(GeneratedLevel &genLevel, int x, int y, unsigned int randval) {
+	auto enemySpawner = getRandEnemy(CAVE_ENEMIES, randval);
+	std::unique_ptr<Enemy> enemy = enemySpawner(x, y);
+	if(enemy)
+		genLevel.spawnEnemy(std::move(enemy));
 }
 
 GeneratedLevel genCaveLevel(unsigned int seed) {
@@ -100,28 +105,28 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 	rooms.push(Room(0, 0, 3, 3));
 	emptyRooms.push_back(rooms.top());
 
-	std::mt19937 random;
-	random.seed(seed);
+	std::mt19937 levelGenRand;
+	levelGenRand.seed(seed);
 
 	// Create the rooms
 	while(!rooms.empty()) {
 		Room room = rooms.top();
-		int halfw = random() % 4 + 3,
-			halfh = random() % 4 + 3;
+		int halfw = levelGenRand() % 4 + 3,
+			halfh = levelGenRand() % 4 + 3;
 		if(visited.count({ room.x, room.y })) {	
-			if(!addNewRooms(room.x, room.y, halfw, halfh, rooms, visited, random() % 4))
+			if(!addNewRooms(room.x, room.y, halfw, halfh, rooms, visited, levelGenRand() % 4))
 				rooms.pop();
 			continue;
 		}
 		createRoom(level, room, "dirt");
 		visited.insert({ room.x, room.y });
-		if((rooms.size() > 2 && random() % 3 == 0) || rooms.size() >= 3) {
-			if(random() % 8 == 0)
+		if((rooms.size() > 2 && levelGenRand() % 3 == 0) || rooms.size() >= 3) {
+			if(levelGenRand() % 8 == 0)
 				emptyRooms.push_back(room);
 			rooms.pop();
 		}
-		if(!addNewRooms(room.x, room.y, halfw, halfh, rooms, visited, random() % 4)) {
-			if(random() % 8 == 0)
+		if(!addNewRooms(room.x, room.y, halfw, halfh, rooms, visited, levelGenRand() % 4)) {
+			if(levelGenRand() % 8 == 0)
 				emptyRooms.push_back(room);
 			rooms.pop();
 		}
@@ -137,11 +142,11 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 				continue;
 			if(!level.getWallTile(x, y).isEmpty())
 				continue;
-			if(random() % 4 == 0 && (x + y) % 2 == 0)
+			if(levelGenRand() % 4 == 0 && (x + y) % 2 == 0)
 				level.setWallTile(x, y, "dirt");
-			if(random() % 3 == 0 && (y % 3 == 0 || x % 3 == 0))
+			if(levelGenRand() % 3 == 0 && (y % 3 == 0 || x % 3 == 0))
 				level.setWallTile(x, y, "dirt");
-			if(x % 3 == 0 && y % 3 == 0 && random() % 32 == 0)
+			if(x % 3 == 0 && y % 3 == 0 && levelGenRand() % 32 == 0)
 				level.setWallTile(x, y, "crate");
 		}
 	}
@@ -149,7 +154,7 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 	std::vector<Room> dungeonRooms;
 	dungeonRooms.push_back(Room(0, 0, 3, 3));
 	for(const auto &room : emptyRooms) {
-		if(random() % 5 == 0 && room.halfw > 2 && room.halfh > 2) {
+		if(levelGenRand() % 5 == 0 && room.halfw > 2 && room.halfh > 2) {
 			bool intersects = false;
 			for(const auto &prevRoom : dungeonRooms)
 				intersects = intersects || room.intersects(prevRoom);
@@ -160,10 +165,10 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 			}
 		}
 
-		int crateCount = random() % 4;
+		int crateCount = levelGenRand() % 4;
 		for(int i = 0; i < crateCount; i++) {
-			int x = random() % (room.halfw * 2 + 1) + room.x - room.halfw,
-				y = random() % (room.halfh * 2 + 1) + room.y - room.halfh;
+			int x = levelGenRand() % (room.halfw * 2 + 1) + room.x - room.halfw,
+				y = levelGenRand() % (room.halfh * 2 + 1) + room.y - room.halfh;
 			if(level.getWallTile(x, y).tileId == tile("brick").tileId)
 				continue;
 			if(x == room.x && y == room.y)
@@ -181,8 +186,8 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 				continue;
 			if(abs(x) <= 8 && abs(y) <= 8)
 				continue;
-			if(random() % 72 == 0) {
-				spawnEnemy(genLevel, x, y);
+			if(levelGenRand() % 72 == 0) {
+				spawnEnemy(genLevel, x, y, levelGenRand());
 				for(int dx = -1; dx <= 1; dx++)
 					for(int dy = -1; dy <= 1; dy++)
 						cannotSpawn.insert({ x + dx, y + dy });
