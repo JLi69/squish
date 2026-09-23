@@ -1,5 +1,26 @@
 #include "enemies.hpp"
+#include "random_utils.hpp"
 #include <cmath>
+
+void Enemy::initEnemy(int px, int py, const std::string &texId) {
+	x = px;
+	y = py;
+
+	default_offset = DEFAULT_ENEMY_OFFSET;
+	default_scale = 0.9f;
+
+	sprite = Sprite(texId, glm::vec2(0.0f, 0.0f));
+	sprite.offset = default_offset;
+	sprite.scale = glm::vec2(default_scale, default_scale);	
+
+	moveEnemyTimer = Timer(1.0f, true);
+	moveEnemyTimer.currentTime = randf_range(0.0f, 1.0f);
+	attackTimer = Timer(0.75f, true);
+
+	squishyAnimation = AnimationValue(default_scale - 0.05f, default_scale + 0.05f, 0.5f);
+	squishyAnimation.time = randf_range(0.0f, 1.0f);
+	squishyAnimation.loop = true;
+}
 
 void Enemy::setDir(int dx, int dy) {
 	dirx = dx;

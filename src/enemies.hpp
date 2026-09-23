@@ -21,6 +21,8 @@ protected:
 	Color bloodColor = colors::RED;
 	
 	AnimationValue attackOffsetX, attackOffsetY;
+
+	void initEnemy(int px, int py, const std::string &texId);
 public:
 	Timer moveEnemyTimer;
 	Timer attackTimer;

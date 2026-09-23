@@ -13,6 +13,7 @@ struct GeneratedLevel {
 struct Room {
 	int x, y;
 	int halfw, halfh;
+	bool exitRoom = false;
 	Room(int posX, int posY, int halfWidth, int halfHeight);
 	bool contains(int px, int py) const;
 	bool intersects(const Room &other) const;

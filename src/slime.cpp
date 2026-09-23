@@ -5,26 +5,14 @@ const int DIRECTION_X[] = { -1, 1,  0, 0 };
 const int DIRECTION_Y[] = {  0, 0, -1, 1 };
 
 Slime::Slime(int px, int py) {
-	x = px;
-	y = py;
-	sprite = Sprite("slime", glm::vec2(0.0f, 0.0f));
+	initEnemy(px, py, "slime");
 	
 	sprite.shadowScale = glm::vec2(1.3f, 0.65f);
-	sprite.shadowOffset = glm::vec2(0.0f, -0.02f);
-
-	default_offset = DEFAULT_ENEMY_OFFSET;
-	default_scale = 0.9f;
-
-	sprite.offset = default_offset;
-	sprite.scale = glm::vec2(default_scale, default_scale);
+	sprite.shadowOffset = glm::vec2(0.0f, -0.02f);	
 
 	squishyAnimation = AnimationValue(default_scale - 0.1f, default_scale + 0.1f, 0.5f);
 	squishyAnimation.time = randf_range(0.0f, 1.0f);
 	squishyAnimation.loop = true;
-
-	moveEnemyTimer = Timer(1.0f, true);
-	moveEnemyTimer.currentTime = randf_range(0.0f, 1.0f);
-	attackTimer = Timer(0.75f, true);
 
 	bloodColor = colors::SLIME_GREEN;
 }

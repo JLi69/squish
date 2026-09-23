@@ -2,7 +2,7 @@
 #include <random>
 #include <stack>
 
-const int CAVE_SIZE = 96;
+const int CAVE_SIZE = 80;
 const int ROOM_DIST = 5;
 const int MARGIN = 16;
 
@@ -85,6 +85,15 @@ static void spawnEnemy(GeneratedLevel &genLevel, int x, int y, unsigned int rand
 		genLevel.spawnEnemy(std::move(enemy));
 }
 
+static void createExitRoom(Level &level, Room exitRoom) {
+	createDungeonRoom(level, exitRoom, "brick", "stone_floor");
+	level.setFloorTile(exitRoom.x, exitRoom.y, "teleporter");
+	level.setWallTile(exitRoom.x - 2, exitRoom.y - 2, "purple_energy_block");
+	level.setWallTile(exitRoom.x + 2, exitRoom.y - 2, "purple_energy_block");
+	level.setWallTile(exitRoom.x - 2, exitRoom.y + 2, "purple_energy_block");
+	level.setWallTile(exitRoom.x + 2, exitRoom.y + 2, "purple_energy_block");
+}
+
 GeneratedLevel genCaveLevel(unsigned int seed) {
 	fprintf(stderr, "Generating cave level with seed: %u.\n", seed);
 
@@ -109,6 +118,8 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 	levelGenRand.seed(seed);
 
 	// Create the rooms
+	bool placedExitRoom = false;
+	Room exitRoom = Room(0, 0, 3, 3);
 	while(!rooms.empty()) {
 		Room room = rooms.top();
 		int halfw = levelGenRand() % 4 + 3,
@@ -126,7 +137,15 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 			rooms.pop();
 		}
 		if(!addNewRooms(room.x, room.y, halfw, halfh, rooms, visited, levelGenRand() % 4)) {
-			if(levelGenRand() % 8 == 0)
+			// Place exit room
+			if(!placedExitRoom) {
+				room.halfh = 3;
+				room.halfw = 3;
+				room.exitRoom = true;
+				exitRoom = room;
+				placedExitRoom = true;
+			}
+			else if(levelGenRand() % 8 == 0)
 				emptyRooms.push_back(room);
 			rooms.pop();
 		}
@@ -152,6 +171,9 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 	}
 
 	std::vector<Room> dungeonRooms;
+	// Create the exit room
+	createExitRoom(level, exitRoom);
+	dungeonRooms.push_back(exitRoom);
 	dungeonRooms.push_back(Room(0, 0, 3, 3));
 	for(const auto &room : emptyRooms) {
 		if(levelGenRand() % 5 == 0 && room.halfw > 2 && room.halfh > 2) {
@@ -164,6 +186,9 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 				createDungeonRoom(level, room, "brick", "stone_floor");
 			}
 		}
+
+		if(room.intersects(exitRoom))
+			continue;
 
 		int crateCount = levelGenRand() % 4;
 		for(int i = 0; i < crateCount; i++) {

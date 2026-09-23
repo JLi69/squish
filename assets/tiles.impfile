@@ -32,3 +32,14 @@
 	"id" = "5";
 	"tex_coords" = "5.0, 0.0";
 }
+
+"teleporter" {
+	"id" = "6";
+	"tex_coords" = "6.0, 0.0";
+}
+
+"purple_energy_block" {
+	"id" = "7";
+	"tex_coords" = "7.0, 0.0";
+	"tags" = "can_push";
+}
