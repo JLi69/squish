@@ -1,5 +1,4 @@
 #include "generate_level.hpp"
-#include <random>
 #include <stack>
 
 const int CAVE_SIZE = 80;
@@ -94,9 +93,7 @@ static void createExitRoom(Level &level, Room exitRoom) {
 	level.setWallTile(exitRoom.x + 2, exitRoom.y + 2, "purple_energy_block");
 }
 
-GeneratedLevel genCaveLevel(unsigned int seed) {
-	fprintf(stderr, "Generating cave level with seed: %u.\n", seed);
-
+GeneratedLevel genCaveLevel(std::mt19937 &levelGenRand) {
 	GeneratedLevel genLevel;
 	genLevel.level = Level(-CAVE_SIZE, -CAVE_SIZE, CAVE_SIZE, CAVE_SIZE);
 	Level &level = genLevel.level;
@@ -113,9 +110,6 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 	std::vector<Room> emptyRooms;
 	rooms.push(Room(0, 0, 3, 3));
 	emptyRooms.push_back(rooms.top());
-
-	std::mt19937 levelGenRand;
-	levelGenRand.seed(seed);
 
 	// Create the rooms
 	bool placedExitRoom = false;
@@ -211,7 +205,16 @@ GeneratedLevel genCaveLevel(unsigned int seed) {
 				continue;
 			if(abs(x) <= 8 && abs(y) <= 8)
 				continue;
-			if(levelGenRand() % 72 == 0) {
+			if(level.getFloorTile(x, y).tileId == tile("teleporter").tileId)
+				continue;
+			
+			bool canSpawnEnemy = false;
+			if(level.getFloorTile(x, y).tileId == tile("stone_floor").tileId)
+				canSpawnEnemy = (levelGenRand() % 32 == 0);
+			else
+				canSpawnEnemy = (levelGenRand() % 64 == 0);
+
+			if(canSpawnEnemy) {
 				spawnEnemy(genLevel, x, y, levelGenRand());
 				for(int dx = -1; dx <= 1; dx++)
 					for(int dy = -1; dy <= 1; dy++)

@@ -22,6 +22,7 @@ struct Camera2D {
 };
 
 class Game {
+	bool paused = false;
 	float time = 0.0f;
 	Level level = Level(-8, -8, 8, 8);
 	EnemyList enemies;
@@ -56,6 +57,7 @@ public:
 
 	void loadFromGeneratedLevel(GeneratedLevel &genLevel);
 	float getTime() const;
+	bool getPaused() const;
 };
 
 bool canPush(const Level &level, int x, int y, int dirx, int diry);

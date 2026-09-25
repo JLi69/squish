@@ -3,6 +3,7 @@
 #include "level.hpp"
 #include "enemies.hpp"
 #include <memory>
+#include <random>
 
 struct GeneratedLevel {
 	Level level = Level(0, 0, 1, 1);
@@ -24,4 +25,4 @@ void createRoom(Level &level, Room room, const std::string &wallTile);
 // For debug purposes: generates test level
 GeneratedLevel genTestLevel();
 // Generates a cave level
-GeneratedLevel genCaveLevel(unsigned int seed);
+GeneratedLevel genCaveLevel(std::mt19937 &levelGenRand);

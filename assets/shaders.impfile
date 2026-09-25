@@ -29,3 +29,9 @@
 	"vertex" = "assets/shaders/sprite_vert.glsl";
 	"fragment" = "assets/shaders/flat_frag.glsl";
 }
+
+# Shader for display shapes with only one color
+"flat_color_shader" {
+	"vertex" = "assets/shaders/sprite_vert.glsl";
+	"fragment" = "assets/shaders/flat_color.glsl";
+}

@@ -45,7 +45,11 @@ void Game::initTestLevel() {
 void Game::initCaveLevel() {
 	player = Player(0, 0);
 	std::random_device rd;
-	GeneratedLevel genLevel = genCaveLevel(rd());
+	unsigned int seed = rd();
+	std::mt19937 levelGenRand;
+	levelGenRand.seed(seed);
+	fprintf(stderr, "Generating cave level with seed: %u.\n", seed);
+	GeneratedLevel genLevel = genCaveLevel(levelGenRand);
 	loadFromGeneratedLevel(genLevel);
 	tileVaos = getTileMapVaos(level);
 }
@@ -128,6 +132,12 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 }
 
 void Game::update(float dt) {
+	if(getKeyInputState(GLFW_KEY_ESCAPE) == JUST_PRESSED)
+		paused = !paused;
+
+	if(paused)
+		return;
+
 	time += dt;
 
 	bool playerCurrentlyDead = player.isDead();
@@ -313,4 +323,8 @@ void Game::clearParticleList() {
 
 float Game::getTime() const {
 	return time;
+}
+
+bool Game::getPaused() const {
+	return paused;
 }

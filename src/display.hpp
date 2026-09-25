@@ -55,3 +55,5 @@ bool displayParticle(
 );
 // Displays an icon
 void displayIcon(const std::string &texture, const Transform &transform);
+// Displays a color rectangle
+void displayColorRect(const Transform &transform, Color color);

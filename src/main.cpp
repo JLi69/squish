@@ -105,6 +105,13 @@ void display(Game &game, int w, int h) {
 		scale *= 48.0f;
 		displayIcon("heart", Transform(pos, glm::vec2(scale)));
 	}
+
+	// Display pause screen	
+	if(game.getPaused()) {
+		setupShaderForUi("flat_color_shader", w, h, 1.0f);
+		Transform transform = Transform(glm::vec2(0.0f), glm::vec2(w, h));
+		displayColorRect(transform, Color(0.2f, 0.2f, 0.2f, 0.7f));
+	}
 }
 
 int main(int argc, char *argv[]) {

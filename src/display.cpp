@@ -219,3 +219,14 @@ void displayIcon(const std::string &texture, const Transform &transform) {
 	TEXTURES->bindTexture(texture, GL_TEXTURE0);
 	VAOS->draw();
 }
+
+void displayColorRect(const Transform &transform, Color color) {
+	VAOS->bind("quad");
+	ShaderProgram &shader = SHADERS->getShader("flat_color_shader");
+
+	shader.use();
+	glm::mat4 transformMat = transform.getMat();
+	shader.uniformMat4x4("transform", transformMat);
+	shader.uniformVec4("color", color);
+	VAOS->draw();
+}
