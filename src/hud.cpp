@@ -2,7 +2,7 @@
 #include <algorithm>
 
 void HudData::updateDisplayGooBar(float dt, float gooBarProgress) {
-	const float MIN_GOO_BAR_UPDATE_SPEED = 0.1f;
+	const float MIN_GOO_BAR_UPDATE_SPEED = 0.05f;
 	if(displayGooBarProgress < gooBarProgress) {
 		float diff = gooBarProgress - displayGooBarProgress;
 		float speed = std::max(diff, MIN_GOO_BAR_UPDATE_SPEED) * 3.0f;

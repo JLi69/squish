@@ -23,13 +23,13 @@
 
 "slime" {
 	"target" = "texture2d";
-	"path" = "assets/textures/slime.png";
+	"path" = "assets/textures/enemies/slime.png";
 	"flip" = "true";
 }
 
 "snake" {
 	"target" = "texture2d";
-	"path" = "assets/textures/snake.png";
+	"path" = "assets/textures/enemies/snake.png";
 	"flip" = "true";
 }
 
@@ -41,6 +41,6 @@
 
 "heart" {
 	"target" = "texture2d";
-	"path" = "assets/textures/heart.png";
+	"path" = "assets/textures/ui/heart.png";
 	"flip" = "true";
 }
