@@ -192,6 +192,10 @@ void Game::update(float dt) {
 		if(enemy->isInsideTile(level)) {
 			// Enemy got squished
 			if(!enemy->uncollide(level)) {
+				// Update the goo bar
+				player.setGooBarValue(player.getGooBarProgress() + enemy->getGooAmt());
+				if(player.getGooBarProgress() > 0.99f)
+					player.setGooBarValue(1.0f);
 				enemy->squish(particles);
 				enemy.reset();
 			}

@@ -106,6 +106,42 @@ void display(Game &game, int w, int h) {
 		displayIcon("heart", Transform(pos, glm::vec2(scale)));
 	}
 
+
+	setupShaderForUi("flat_color_shader", w, h, zoom);
+
+	glm::vec4 bottom = glm::vec4(
+		0.0f,
+		-float(h) / 2.0f * 1.0f / zoom,
+		0.0f,
+		1.0f
+	);
+
+	// Display 'goo bar'
+	if(!player.isDead()) {
+		Transform transform;
+		float gooBarWidth = float(w) * 0.6f;
+		float gooBarHeight = gooBarWidth * 0.03f;
+		glm::vec2 size = glm::vec2(gooBarWidth, gooBarHeight) / zoom;
+		glm::vec4 offset = glm::vec4(
+			0.0f, 
+			gooBarHeight / 2.0f, 
+			0.0f, 
+			0.0f
+		) / zoom + glm::vec4(0.0f, 8.0f, 0.0f, 0.0f) * zoom;
+	
+		// Display background
+		transform = Transform(bottom + offset, size + glm::vec2(5.0f));
+		displayColorRect(transform, Color(0.0f, 0.75f, 0.0f, 0.5f));
+		
+		transform = Transform(bottom + offset, size);
+		displayColorRect(transform, Color(0.0f, 0.25f, 0.0f, 0.5f));
+		
+		glm::vec2 progress = glm::vec2(size.x * game.hud.displayGooBarProgress, size.y);
+		glm::vec4 progressOffset = glm::vec4(-size.x / 2.0f + progress.x / 2.0f, 0.0f, 0.0f, 0.0f);
+		transform = Transform(bottom + offset + progressOffset, progress);
+		displayColorRect(transform, Color(0.2f, 1.0f, 0.2f, 0.3f));
+	}
+
 	// Display pause screen	
 	if(game.getPaused()) {
 		setupShaderForUi("flat_color_shader", w, h, 1.0f);
@@ -151,6 +187,7 @@ int main(int argc, char *argv[]) {
 		float begin = glfwGetTime();
 
 		game.update(dt);
+		game.updateHud(dt);
 
 		game.updateChunkVaos();
 		int w, h;

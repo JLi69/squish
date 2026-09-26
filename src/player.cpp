@@ -1,4 +1,5 @@
 #include "player.hpp"
+#include <algorithm>
 
 const float PLAYER_DAMAGE_FLASH_TIME = 0.5f;
 
@@ -58,4 +59,12 @@ Color Player::getColor() const {
 Color Player::getMultColor() const {
 	float t = playerDamageTimer / PLAYER_DAMAGE_FLASH_TIME;
 	return Color(1.0f, 0.4f, 0.4f, 1.0f) * t + colors::WHITE * (1.0f - t);
+}
+
+float Player::getGooBarProgress() const {
+	return gooBarProgress;
+}
+
+void Player::setGooBarValue(float val) {
+	gooBarProgress = std::clamp(val, 0.0f, 1.0f);
 }

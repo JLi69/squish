@@ -155,3 +155,7 @@ EnemySpawner getRandEnemy(const EnemySpawnWeights &weights, unsigned int randval
 		return nullptr;
 	};
 }
+
+float Enemy::getGooAmt() const {
+	return gooAmt;
+}

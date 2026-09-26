@@ -12,6 +12,7 @@ class Player : public Actor {
 	AnimationValue squishyAnimation;
 	int health = DEFAULT_HEALTH;
 	float playerDamageTimer = 0.0f;
+	float gooBarProgress = 0.0f; // Must be in the range 0.0 to 1.0
 public:	
 	// Constructor
 	Player(int px, int py);
@@ -22,4 +23,6 @@ public:
 	void explode(ParticleList &particles);
 	Color getColor() const;
 	Color getMultColor() const;
+	float getGooBarProgress() const;
+	void setGooBarValue(float val);
 };

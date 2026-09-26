@@ -21,6 +21,11 @@ struct Camera2D {
 	void follow(float dt, glm::vec2 followPos);
 };
 
+struct HudData {
+	float displayGooBarProgress = 0.0f;
+	void updateDisplayGooBar(float dt, float gooBarProgress);
+};
+
 class Game {
 	bool paused = false;
 	float time = 0.0f;
@@ -41,6 +46,8 @@ class Game {
 
 	std::stack<std::pair<int, int>> chunksToUpdate;
 public:
+	HudData hud;
+
 	Level &getLevel();
 	Player &getPlayer();
 	const TileVaos &getTileVaos() const;
@@ -48,6 +55,7 @@ public:
 	void initCaveLevel();
 
 	void update(float dt);
+	void updateHud(float dt);
 	void updateChunkVaos();
 
 	Camera2D &getCamera();

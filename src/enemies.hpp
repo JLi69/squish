@@ -22,6 +22,8 @@ protected:
 	
 	AnimationValue attackOffsetX, attackOffsetY;
 
+	float gooAmt = 0.05f;
+
 	void initEnemy(int px, int py, const std::string &texId);
 public:
 	Timer moveEnemyTimer;
@@ -45,6 +47,8 @@ public:
 	virtual void attackPlayer(Player &player);
 
 	glm::vec2 getDisplayPos() const override;
+
+	float getGooAmt() const;
 };
 
 class Slime : public Enemy {
