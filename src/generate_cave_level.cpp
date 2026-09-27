@@ -6,8 +6,9 @@ const int ROOM_DIST = 5;
 const int MARGIN = 16;
 
 const EnemySpawnWeights CAVE_ENEMIES = {
-	{ 2, [](int x, int y) { return std::make_unique<Slime>(x, y); } },
-	{ 1, [](int x, int y) { return std::make_unique<Snake>(x, y); } },
+	{ 9, [](int x, int y) { return std::make_unique<Slime>(x, y); } },
+	{ 6, [](int x, int y) { return std::make_unique<Snake>(x, y); } },
+	{ 3, [](int x, int y) { return std::make_unique<BlueSlime>(x, y); } },
 };
 
 static void createDungeonRoom(

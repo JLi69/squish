@@ -33,6 +33,12 @@
 	"flip" = "true";
 }
 
+"blue_slime" {
+	"target" = "texture2d";
+	"path" = "assets/textures/enemies/blue_slime.png";
+	"flip" = "true";
+}
+
 "particle" {
 	"target" = "texture2d";
 	"path" = "assets/textures/particle.png";

@@ -5,12 +5,12 @@ void HudData::updateDisplayGooBar(float dt, float gooBarProgress) {
 	const float MIN_GOO_BAR_UPDATE_SPEED = 0.05f;
 	if(displayGooBarProgress < gooBarProgress) {
 		float diff = gooBarProgress - displayGooBarProgress;
-		float speed = std::max(diff, MIN_GOO_BAR_UPDATE_SPEED) * 3.0f;
+		float speed = std::max(diff, MIN_GOO_BAR_UPDATE_SPEED) * 4.0f;
 		displayGooBarProgress += std::min(dt * speed, diff);
 	}
 	else if(displayGooBarProgress > gooBarProgress) {
 		float diff = displayGooBarProgress - gooBarProgress;
-		float speed = std::max(diff, MIN_GOO_BAR_UPDATE_SPEED) * 3.0f;
+		float speed = std::max(diff, MIN_GOO_BAR_UPDATE_SPEED) * 4.0f;
 		displayGooBarProgress -= std::min(dt * speed, diff);
 	}
 

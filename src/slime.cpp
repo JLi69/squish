@@ -47,3 +47,13 @@ void Slime::updateDir(const Level &level, const Player &player) {
 	int index = rand() % 4;
 	setDir(DIRECTION_X[index], DIRECTION_Y[index]);
 }
+
+BlueSlime::BlueSlime(int px, int py) : Slime(px, py) {
+	sprite.spriteTexId = "blue_slime";
+
+	damage = 2;
+	moveEnemyTimer.interval *= 0.65f;
+	gooAmt *= 2.0f;
+
+	bloodColor = colors::BLUE;
+}

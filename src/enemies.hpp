@@ -63,6 +63,11 @@ public:
 	void updateDir(const Level &level, const Player &player) override;
 };
 
+class BlueSlime : public Slime {
+public:
+	BlueSlime(int px, int py);
+};
+
 typedef std::function<std::unique_ptr<Enemy>(int, int)> EnemySpawner;
 typedef std::vector<std::pair<int, EnemySpawner>> EnemySpawnWeights;
 
