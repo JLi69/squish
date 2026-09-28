@@ -52,8 +52,10 @@ BlueSlime::BlueSlime(int px, int py) : Slime(px, py) {
 	sprite.spriteTexId = "blue_slime";
 
 	damage = 2;
-	moveEnemyTimer.interval *= 0.65f;
+	moveEnemyTimer.interval *= 0.75f;
 	gooAmt *= 2.0f;
+
+	squishyAnimation.length *= 0.7f;
 
 	bloodColor = colors::BLUE;
 }

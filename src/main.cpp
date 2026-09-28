@@ -127,19 +127,24 @@ void display(Game &game, int w, int h) {
 			gooBarHeight / 2.0f, 
 			0.0f, 
 			0.0f
-		) / zoom + glm::vec4(0.0f, 8.0f, 0.0f, 0.0f) * zoom;
-	
-		// Display background
+		) / zoom + glm::vec4(0.0f, 20.0f, 0.0f, 0.0f) * zoom;
+
+		// Outline
 		transform = Transform(bottom + offset, size + glm::vec2(5.0f));
-		displayColorRect(transform, Color(0.0f, 0.75f, 0.0f, 0.5f));
-		
+		displayColorRect(transform, Color(0.0f, 0.75f, 0.0f, 0.5f));	
+		// Display background
 		transform = Transform(bottom + offset, size);
 		displayColorRect(transform, Color(0.0f, 0.25f, 0.0f, 0.5f));
-		
+		// Progress bar	
 		glm::vec2 progress = glm::vec2(size.x * game.hud.displayGooBarProgress, size.y);
 		glm::vec4 progressOffset = glm::vec4(-size.x / 2.0f + progress.x / 2.0f, 0.0f, 0.0f, 0.0f);
 		transform = Transform(bottom + offset + progressOffset, progress);
 		displayColorRect(transform, Color(0.2f, 1.0f, 0.2f, 0.3f));
+		// Goo bomb icon
+		setupShaderForUi("flat_sprite_shader", w, h, zoom);
+		glm::vec4 gooBombPos = bottom + offset + glm::vec4(size.x / 2.0f, 6.0f, 0.0f, 0.0f);
+		Transform gooBombTransform = Transform(gooBombPos, glm::vec2(56.0f), -20.0f);
+		displayIcon("goo_bomb_icon", gooBombTransform);
 	}
 
 	// Display pause screen	

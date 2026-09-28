@@ -50,3 +50,15 @@
 	"path" = "assets/textures/ui/heart.png";
 	"flip" = "true";
 }
+
+"goo_bomb_icon" {
+	"target" = "texture2d";
+	"path" = "assets/textures/ui/goo_bomb_icon.png";
+	"flip" = "true";
+}
+
+"goo_bomb" {
+	"target" = "texture2d";
+	"path" = "assets/textures/goo_bomb.png";
+	"flip" = "true";
+}
