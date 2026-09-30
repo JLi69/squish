@@ -211,9 +211,9 @@ GeneratedLevel genCaveLevel(std::mt19937 &levelGenRand) {
 			
 			bool canSpawnEnemy = false;
 			if(level.getFloorTile(x, y).tileId == tile("stone_floor").tileId)
-				canSpawnEnemy = (levelGenRand() % 32 == 0);
+				canSpawnEnemy = (levelGenRand() % 24 == 0);
 			else
-				canSpawnEnemy = (levelGenRand() % 64 == 0);
+				canSpawnEnemy = (levelGenRand() % 48 == 0);
 
 			if(canSpawnEnemy) {
 				spawnEnemy(genLevel, x, y, levelGenRand());

@@ -138,6 +138,18 @@ void Game::update(float dt) {
 	if(paused)
 		return;
 
+	// Drain the goo bar
+	if(player.getGooBarProgress() == 1.0f && getKeyInputState(GLFW_KEY_Z) == JUST_PRESSED) {
+		player.setGooBarValue(0.0f);
+		player.gooBombCount++;
+		hud.gooBombScale = 1.5f;
+	}
+
+	// Place a goo bomb
+	if(getKeyInputState(GLFW_KEY_C) == JUST_PRESSED) {
+		
+	}
+
 	time += dt;
 
 	bool playerCurrentlyDead = player.isDead();

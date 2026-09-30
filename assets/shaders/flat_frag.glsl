@@ -9,12 +9,15 @@ out vec4 fragColor;
 uniform bool flipVert;
 uniform vec4 color;
 
+uniform vec2 scale;
+uniform vec2 offset;
+
 void main() {
 	vec2 tc = fragpos.xy + vec2(0.5, 0.5);
 	tc.x = clamp(tc.x, 0.01, 0.99);
 	tc.y = clamp(tc.y, 0.01, 0.99);
 	tc.x = (1.0 - tc.x) * float(flipVert) + tc.x * float(!flipVert);
-	fragColor = texture(tex, tc) * color;
+	fragColor = texture(tex, tc * scale + offset) * color;
 	if(fragColor.a < 0.1)
 		discard;
 }

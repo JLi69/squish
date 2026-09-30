@@ -23,6 +23,7 @@ struct Camera2D {
 
 struct HudData {
 	float displayGooBarProgress = 0.0f;
+	float gooBombScale = 1.0f;
 	void updateDisplayGooBar(float dt, float gooBarProgress);
 };
 

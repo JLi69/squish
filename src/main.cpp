@@ -72,6 +72,7 @@ void display(Game &game, int w, int h) {
 	}
 
 	setupShaderCam("flat_sprite_shader", w, h, DEFAULT_ZOOM, camMat);
+	selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(1.0f));
 	unsigned int particleCount = 0;
 	for(const auto &particle : game.getParticles()) {
 		if(particle == nullptr)
@@ -103,6 +104,7 @@ void display(Game &game, int w, int h) {
 		else if(i == player.getHealth() - 1 && player.getHealth() == 1)
 			scale = sin(game.getTime() * M_PI) * 0.2f + 1.1f;
 		scale *= 48.0f;
+		selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
 		displayIcon("heart", Transform(pos, glm::vec2(scale)));
 	}
 
@@ -116,8 +118,8 @@ void display(Game &game, int w, int h) {
 		1.0f
 	);
 
-	// Display 'goo bar'
 	if(!player.isDead()) {
+		// Display 'goo bar'
 		Transform transform;
 		float gooBarWidth = float(w) * 0.6f;
 		float gooBarHeight = gooBarWidth * 0.03f;
@@ -131,7 +133,7 @@ void display(Game &game, int w, int h) {
 
 		// Outline
 		transform = Transform(bottom + offset, size + glm::vec2(5.0f));
-		displayColorRect(transform, Color(0.0f, 0.75f, 0.0f, 0.5f));	
+		displayColorRect(transform, Color(0.0f, 0.75f, 0.0f, 0.5f));
 		// Display background
 		transform = Transform(bottom + offset, size);
 		displayColorRect(transform, Color(0.0f, 0.25f, 0.0f, 0.5f));
@@ -141,10 +143,42 @@ void display(Game &game, int w, int h) {
 		transform = Transform(bottom + offset + progressOffset, progress);
 		displayColorRect(transform, Color(0.2f, 1.0f, 0.2f, 0.3f));
 		// Goo bomb icon
+		float scale = 1.0f;
+		if(player.getGooBarProgress() >= 1.0f)
+			scale = sin(game.getTime() * M_PI * 1.5f) * 0.1f + 1.1f;
+		scale *= 56.0f;
 		setupShaderForUi("flat_sprite_shader", w, h, zoom);
-		glm::vec4 gooBombPos = bottom + offset + glm::vec4(size.x / 2.0f, 6.0f, 0.0f, 0.0f);
-		Transform gooBombTransform = Transform(gooBombPos, glm::vec2(56.0f), -20.0f);
+		glm::vec4 iconPos = bottom + offset + glm::vec4(size.x / 2.0f, 6.0f, 0.0f, 0.0f);
+		Transform gooBombTransform = Transform(iconPos, glm::vec2(scale), -20.0f);
+		selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
 		displayIcon("goo_bomb_icon", gooBombTransform);
+
+		// Display goo bomb counter
+		iconPos = topLeft + glm::vec4(4.0f, -50.0f, 0.0f, 0.0f);
+		gooBombTransform = Transform(iconPos, glm::vec2(56.0f), -20.0f);
+		gooBombTransform.scale *= game.hud.gooBombScale;
+		selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
+		displayIcon("goo_bomb_icon", gooBombTransform);
+
+		glm::vec2 digitScale = glm::vec2(9.0f, 16.0f) * 2.0f;
+		Transform digitTransform = Transform(
+			iconPos + glm::vec4(35.0f, -4.0f, 0.0f, 0.0f),
+			digitScale
+		);
+		digitTransform.scale *= game.hud.gooBombScale;
+		displayUint(digitTransform, colors::WHITE, player.gooBombCount);
+
+		// Display goo coin counter
+		iconPos = topLeft + glm::vec4(2.0f, -110.0f, 0.0f, 0.0f);
+		Transform gooCoinTransform = Transform(iconPos, glm::vec2(40.0f));
+		selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
+		displayIcon("goo_coin", gooCoinTransform);
+
+		digitTransform = Transform(
+			iconPos + glm::vec4(38.0f, 0.0f, 0.0f, 0.0f),
+			digitScale
+		);
+		displayUint(digitTransform, colors::WHITE, 0);
 	}
 
 	// Display pause screen	
@@ -177,6 +211,7 @@ int main(int argc, char *argv[]) {
 	Game game = Game();
 	if(useTestLevel) {
 		game.initTestLevel();
+		game.getPlayer().setGooBarValue(1.0f);
 	}
 	else {
 		game.initCaveLevel();

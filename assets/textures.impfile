@@ -62,3 +62,15 @@
 	"path" = "assets/textures/goo_bomb.png";
 	"flip" = "true";
 }
+
+"goo_coin" {
+	"target" = "texture2d";
+	"path" = "assets/textures/ui/goo_coin.png";
+	"flip" = "true";
+}
+
+"digits" {
+	"target" = "texture2d";
+	"path" = "assets/textures/ui/digits.png";
+	"flip" = "true";
+}

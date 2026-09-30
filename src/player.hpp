@@ -13,7 +13,9 @@ class Player : public Actor {
 	int health = DEFAULT_HEALTH;
 	float playerDamageTimer = 0.0f;
 	float gooBarProgress = 0.0f; // Must be in the range 0.0 to 1.0
-public:	
+public:
+	int gooBombCount = 0;
+
 	// Constructor
 	Player(int px, int py);
 	void update(float dt) override;

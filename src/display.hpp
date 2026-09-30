@@ -35,6 +35,7 @@ float getZFromY(float y, float topy, float boty);
 void setupShader(const std::string &shader, int w, int h, float zoom);
 void setupShaderForUi(const std::string &shader, int w, int h, float zoom);
 void setupShaderCam(const std::string &shader, int w, int h, float zoom, const glm::mat4 &camMat);
+void selectTexture(const std::string &shader, glm::vec2 scale, glm::vec2 offset);
 
 // Dispays a single chunk vao
 void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z);
@@ -57,3 +58,5 @@ bool displayParticle(
 void displayIcon(const std::string &texture, const Transform &transform);
 // Displays a color rectangle
 void displayColorRect(const Transform &transform, Color color);
+// Displays an unsigned integer
+void displayUint(const Transform &transform, Color color, unsigned int val);

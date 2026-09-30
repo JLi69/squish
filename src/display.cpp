@@ -80,6 +80,13 @@ void setupShaderCam(const std::string &shader, int w, int h, float zoom, const g
 	shaderProgram.uniformMat4x4("windowMat", windowMat * camMat);
 }
 
+void selectTexture(const std::string &shader, glm::vec2 scale, glm::vec2 offset) {
+	ShaderProgram &shaderProgram = SHADERS->getShader(shader);
+	shaderProgram.use();
+	shaderProgram.uniformVec2("scale", scale);
+	shaderProgram.uniformVec2("offset", offset);
+}
+
 void displayChunk(const gfx::Vao &tileVao, ShaderProgram &shader, glm::vec2 offset, float z) {
 	tileVao.bind();
 	shader.uniformFloat("z", z);
@@ -229,4 +236,37 @@ void displayColorRect(const Transform &transform, Color color) {
 	shader.uniformMat4x4("transform", transformMat);
 	shader.uniformVec4("color", color);
 	VAOS->draw();
+}
+
+void displayUint(const Transform &transform, Color color, unsigned int val) {
+	VAOS->bind("quad");
+	ShaderProgram &spriteShader = SHADERS->getShader("flat_sprite_shader");
+
+	spriteShader.use();
+	spriteShader.uniformBool("flipVert", false);	
+	spriteShader.uniformVec4("color", colors::WHITE);
+	TEXTURES->bindTexture("digits", GL_TEXTURE0);
+
+	std::vector<unsigned int> digits;
+	if(val == 0)
+		digits.push_back(0);
+	while(val > 0) {
+		digits.push_back(val % 10);
+		val /= 10;
+	}
+
+	spriteShader.uniformVec4("color", color);
+	Transform digitTransform = transform;
+	for(int i = digits.size() - 1; i >= 0; i--) {
+		unsigned int digit = digits.at(i);
+		glm::mat4 transformMat = digitTransform.getMat();
+		spriteShader.uniformMat4x4("transform", transformMat);
+		selectTexture(
+			"flat_sprite_shader", 
+			glm::vec2(1.0f / 10.0f, 1.0f),
+			glm::vec2(1.0f / 10.0f * float(digit), 0.0f)
+		);
+		VAOS->draw();
+		digitTransform.pos.x += transform.scale.x;
+	}	
 }

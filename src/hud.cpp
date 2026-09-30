@@ -19,4 +19,6 @@ void HudData::updateDisplayGooBar(float dt, float gooBarProgress) {
 
 void Game::updateHud(float dt) {
 	hud.updateDisplayGooBar(dt, player.getGooBarProgress());
+
+	hud.gooBombScale = std::max(1.0f, hud.gooBombScale - dt * 0.75f);
 }
