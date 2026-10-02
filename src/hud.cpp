@@ -17,8 +17,29 @@ void HudData::updateDisplayGooBar(float dt, float gooBarProgress) {
 	displayGooBarProgress = std::clamp(displayGooBarProgress, 0.0f, 1.0f);
 }
 
+void HudData::updateGooCoinDisplay(float dt, unsigned int gooCoinCount) {
+	float diff = float(gooCoinCount) - gooCoinDisplayNum;
+	if(std::abs(diff) < 0.1f) {
+		gooCoinDisplayNum = float(gooCoinCount);
+		return;
+	}
+	
+	float speed = std::max(std::abs(diff) * 2.0f, 12.0f);
+	if(diff > 0.0f)
+		gooCoinDisplayNum += speed * dt;
+	else
+		gooCoinDisplayNum -= speed * dt;
+
+	if(diff < 0.0f && gooCoinDisplayNum < float(gooCoinCount))
+		gooCoinDisplayNum = float(gooCoinCount);
+	else if(diff > 0.0f && gooCoinDisplayNum > float(gooCoinCount))
+		gooCoinDisplayNum = float(gooCoinCount);
+}
+
 void Game::updateHud(float dt) {
 	hud.updateDisplayGooBar(dt, player.getGooBarProgress());
+	hud.updateGooCoinDisplay(dt, player.gooCoins);
 
 	hud.gooBombScale = std::max(1.0f, hud.gooBombScale - dt * 0.75f);
+	hud.gooCoinScale = std::max(1.0f, hud.gooCoinScale - dt * 0.75f);
 }

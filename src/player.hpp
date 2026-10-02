@@ -10,16 +10,18 @@ const int DEFAULT_HEALTH = 4;
 
 class Player : public Actor {
 	AnimationValue squishyAnimation;
-	int health = DEFAULT_HEALTH;
+	int health = DEFAULT_HEALTH, maxHealth = DEFAULT_HEALTH;
 	float playerDamageTimer = 0.0f;
 	float gooBarProgress = 0.0f; // Must be in the range 0.0 to 1.0
 public:
 	int gooBombCount = 0;
+	unsigned int gooCoins = 0;
 
 	// Constructor
 	Player(int px, int py);
 	void update(float dt) override;
 	int getHealth() const;
+	int getMaxHealth() const;
 	void damage(int amt);
 	bool isDead() const;
 	void explode(ParticleList &particles);

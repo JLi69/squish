@@ -51,6 +51,12 @@
 	"flip" = "true";
 }
 
+"heart_empty" {
+	"target" = "texture2d";
+	"path" = "assets/textures/ui/heart_empty.png";
+	"flip" = "true";
+}
+
 "goo_bomb_icon" {
 	"target" = "texture2d";
 	"path" = "assets/textures/ui/goo_bomb_icon.png";

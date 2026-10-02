@@ -96,18 +96,22 @@ void display(Game &game, int w, int h) {
 		1.0f
 	);
 	setupShaderForUi("flat_sprite_shader", w, h, zoom);
-	for(int i = 0; i < player.getHealth(); i++) {
-		glm::vec4 pos = topLeft + glm::vec4(48.0f, 0.0f, 0.0f, 0.0f) * float(i);
-		float scale = 1.0f;
-		if(i == player.getHealth() - 1 && player.getHealth() > 1)
-			scale = sin(game.getTime() * M_PI * 0.75f) * 0.1f + 1.1f;
-		else if(i == player.getHealth() - 1 && player.getHealth() == 1)
-			scale = sin(game.getTime() * M_PI) * 0.2f + 1.1f;
-		scale *= 48.0f;
-		selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
-		displayIcon("heart", Transform(pos, glm::vec2(scale)));
+	if(!player.isDead()) {
+		for(int i = player.getMaxHealth() - 1; i >= 0; i--) {
+			glm::vec4 pos = topLeft + glm::vec4(48.0f, 0.0f, 0.0f, 0.0f) * float(i);
+			float scale = 1.0f;
+			if(i == player.getHealth() - 1 && player.getHealth() > 1)
+				scale = sin(game.getTime() * M_PI * 0.75f) * 0.1f + 1.1f;
+			else if(i == player.getHealth() - 1 && player.getHealth() == 1)
+				scale = sin(game.getTime() * M_PI) * 0.2f + 1.1f;
+			scale *= 48.0f;
+			selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
+			if(i < player.getHealth())
+				displayIcon("heart", Transform(pos, glm::vec2(scale)));
+			else
+				displayIcon("heart_empty", Transform(pos, glm::vec2(scale)));
+		}
 	}
-
 
 	setupShaderForUi("flat_color_shader", w, h, zoom);
 
@@ -165,12 +169,12 @@ void display(Game &game, int w, int h) {
 			iconPos + glm::vec4(35.0f, -4.0f, 0.0f, 0.0f),
 			digitScale
 		);
-		digitTransform.scale *= game.hud.gooBombScale;
 		displayUint(digitTransform, colors::WHITE, player.gooBombCount);
 
 		// Display goo coin counter
 		iconPos = topLeft + glm::vec4(2.0f, -110.0f, 0.0f, 0.0f);
 		Transform gooCoinTransform = Transform(iconPos, glm::vec2(40.0f));
+		gooCoinTransform.scale *= game.hud.gooCoinScale;
 		selectTexture("flat_sprite_shader", glm::vec2(1.0f), glm::vec2(0.0f));
 		displayIcon("goo_coin", gooCoinTransform);
 
@@ -178,7 +182,7 @@ void display(Game &game, int w, int h) {
 			iconPos + glm::vec4(38.0f, 0.0f, 0.0f, 0.0f),
 			digitScale
 		);
-		displayUint(digitTransform, colors::WHITE, 0);
+		displayUint(digitTransform, colors::WHITE, int(game.hud.gooCoinDisplayNum));
 	}
 
 	// Display pause screen	

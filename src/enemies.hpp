@@ -24,6 +24,8 @@ protected:
 
 	float gooAmt = 0.05f;
 
+	unsigned int minGooCoin = 1, maxGooCoin = 3;
+
 	void initEnemy(int px, int py, const std::string &texId);
 public:
 	Timer moveEnemyTimer;
@@ -49,6 +51,8 @@ public:
 	glm::vec2 getDisplayPos() const override;
 
 	float getGooAmt() const;
+	// Randomly generate the number of goo coins the player receives
+	unsigned int getGooCoins() const;
 };
 
 class Slime : public Enemy {

@@ -38,6 +38,10 @@ int Player::getHealth() const {
 	return health;
 }
 
+int Player::getMaxHealth() const {
+	return maxHealth;
+}
+
 void Player::damage(int amt) {
 	health = std::max(health - amt, 0);
 	playerDamageTimer = PLAYER_DAMAGE_FLASH_TIME;

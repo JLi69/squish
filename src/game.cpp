@@ -208,6 +208,8 @@ void Game::update(float dt) {
 				player.setGooBarValue(player.getGooBarProgress() + enemy->getGooAmt());
 				if(player.getGooBarProgress() > 0.99f)
 					player.setGooBarValue(1.0f);
+				player.gooCoins += enemy->getGooCoins();
+				hud.gooCoinScale = 1.5f;
 				enemy->squish(particles);
 				enemy.reset();
 			}

@@ -24,7 +24,10 @@ struct Camera2D {
 struct HudData {
 	float displayGooBarProgress = 0.0f;
 	float gooBombScale = 1.0f;
+	float gooCoinScale = 1.0f;
+	float gooCoinDisplayNum = 0.0f;
 	void updateDisplayGooBar(float dt, float gooBarProgress);
+	void updateGooCoinDisplay(float dt, unsigned int gooCoinCount);
 };
 
 class Game {
