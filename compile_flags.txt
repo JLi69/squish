@@ -1,1 +1,4 @@
 -Iinclude
+-iquotesrc/common
+-iquotesrc/game/
+-iquotesrc/gfx/

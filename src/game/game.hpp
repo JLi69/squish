@@ -4,7 +4,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include "level.hpp"
-#include "enemies.hpp"
+#include "enemies/enemies.hpp"
 #include "tilemap_gfx.hpp"
 #include "generate_level.hpp"
 #include "player.hpp"

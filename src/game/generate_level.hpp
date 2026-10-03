@@ -1,7 +1,7 @@
 #pragma once
 
 #include "level.hpp"
-#include "enemies.hpp"
+#include "enemies/enemies.hpp"
 #include <memory>
 #include <random>
 

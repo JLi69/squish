@@ -1,9 +1,14 @@
 SRC=$(wildcard src/*.cpp) $(wildcard src/*.c)
+SRC+=$(wildcard src/gfx/*.cpp) $(wildcard src/gfx/*.c)
+SRC+=$(wildcard src/common/*.cpp) $(wildcard src/common/*.c)
+SRC+=$(wildcard src/game/*.cpp) $(wildcard src/game/*.c)
+SRC+=$(wildcard src/game/enemies/*.cpp) $(wildcard src/game/enemies/*.c)
+
 HEADER=$(wildcard src/*.hpp) $(wildcard src/*.h)
 OBJ=$(SRC:%=%.o)
 CPP=c++
 BIN_NAME=squish
-INCLUDE=-Iinclude
+INCLUDE=-Iinclude -iquote src/common -iquote src/game/ -iquote src/gfx/
 FLAGS=$(INCLUDE) -std=c++17 -O2
 LD_FLAGS=-lglfw3
 
