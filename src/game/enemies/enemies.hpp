@@ -26,7 +26,7 @@ protected:
 
 	unsigned int minGooCoin = 1, maxGooCoin = 3;
 
-	void initEnemy(int px, int py, const std::string &texId);
+	void initEnemy(int px, int py, const std::string &texId, float scale);
 public:
 	Timer moveEnemyTimer;
 	Timer attackTimer;

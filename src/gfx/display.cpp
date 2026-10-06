@@ -134,7 +134,8 @@ bool displaySprite(
 	ShaderProgram &spriteShader = SHADERS->getShader("sprite_shader");
 
 	float displayy = pos.y + sprite.offset.y;
-	float z = getZFromY(pos.y, float(level.getTopY()), float(level.getBottomY()));
+	float boty = displayy - sprite.scale.y / 2.0f;
+	float z = getZFromY(boty, float(level.getTopY()), float(level.getBottomY()));
 	glm::vec3 displayPos = glm::vec3(pos.x + sprite.offset.x, displayy, z);
 	glm::mat4 transform = glm::mat4(1.0f);
 	transform = glm::translate(transform, displayPos);

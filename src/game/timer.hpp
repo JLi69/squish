@@ -2,7 +2,7 @@
 
 struct Timer {
 	float currentTime, interval;
-	bool loop;
+	bool loop, active = true;
 	Timer();
 	Timer(float intervalAmt, bool shouldLoop);
 	// Returns true whenever the timer triggers

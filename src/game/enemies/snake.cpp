@@ -4,7 +4,7 @@ const int DIRECTION_X[] = { -1, 1,  0, 0 };
 const int DIRECTION_Y[] = {  0, 0, -1, 1 };
 
 Snake::Snake(int px, int py) {
-	initEnemy(px, py, "snake");
+	initEnemy(px, py, "snake", 0.9f);
 
 	sprite.shadowScale = glm::vec2(1.0f, 0.4f);
 	sprite.shadowOffset = glm::vec2(0.0f, -0.12f);	

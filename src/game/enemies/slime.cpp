@@ -5,7 +5,7 @@ const int DIRECTION_X[] = { -1, 1,  0, 0 };
 const int DIRECTION_Y[] = {  0, 0, -1, 1 };
 
 Slime::Slime(int px, int py) {
-	initEnemy(px, py, "slime");
+	initEnemy(px, py, "slime", 0.9f);
 	
 	sprite.shadowScale = glm::vec2(1.3f, 0.65f);
 	sprite.shadowOffset = glm::vec2(0.0f, -0.02f);	

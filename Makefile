@@ -5,6 +5,11 @@ SRC+=$(wildcard src/game/*.cpp) $(wildcard src/game/*.c)
 SRC+=$(wildcard src/game/enemies/*.cpp) $(wildcard src/game/enemies/*.c)
 
 HEADER=$(wildcard src/*.hpp) $(wildcard src/*.h)
+HEADER+=$(wildcard src/gfx/*.hpp) $(wildcard src/gfx/*.h)
+HEADER+=$(wildcard src/common/*.hpp) $(wildcard src/common/*.h)
+HEADER+=$(wildcard src/game/*.hpp) $(wildcard src/game/*.h)
+HEADER+=$(wildcard src/game/enemies/*.hpp) $(wildcard src/game/enemies/*.h)
+
 OBJ=$(SRC:%=%.o)
 CPP=c++
 BIN_NAME=squish

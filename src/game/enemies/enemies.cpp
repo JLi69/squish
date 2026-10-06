@@ -2,12 +2,12 @@
 #include "random_utils.hpp"
 #include <cmath>
 
-void Enemy::initEnemy(int px, int py, const std::string &texId) {
+void Enemy::initEnemy(int px, int py, const std::string &texId, float scale) {
 	x = px;
 	y = py;
 
 	default_offset = DEFAULT_ENEMY_OFFSET;
-	default_scale = 0.9f;
+	default_scale = scale;
 
 	sprite = Sprite(texId, glm::vec2(0.0f, 0.0f));
 	sprite.offset = default_offset;
@@ -28,7 +28,7 @@ void Enemy::setDir(int dx, int dy) {
 }
 
 void Enemy::update(float dt) {
-	Actor::update(dt);
+	Actor::update(dt);	
 
 	if(attackOffsetX.time <= 0.0f || attackOffsetY.time <= 0.0f)
 		attackAnimationActive = false;
@@ -53,7 +53,7 @@ void Enemy::moveEnemy(Level &level) {
 }
 
 void Enemy::updateDir(const Level &level, const Player &player) {
-	// Do nothing
+	setDir(0, 0);
 }
 
 int Enemy::getDirX() const {

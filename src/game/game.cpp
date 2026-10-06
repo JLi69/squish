@@ -1,5 +1,6 @@
 #include "game.hpp"
 #include "app.hpp"
+#include "bomb.hpp"
 #include <set>
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
@@ -147,7 +148,18 @@ void Game::update(float dt) {
 
 	// Place a goo bomb
 	if(getKeyInputState(GLFW_KEY_C) == JUST_PRESSED) {
-		
+		bool canPlaceBomb = player.gooBombCount > 0;
+		for(const auto &enemy : enemies) {
+			if(!canPlaceBomb)
+				break;
+			if(enemy->x == player.x && enemy->y == player.y)
+				canPlaceBomb = false;
+		}
+		if(canPlaceBomb) {
+			hud.gooBombScale = 1.5f;
+			enemies.push_back(std::make_unique<Bomb>(player.x, player.y));
+			player.gooBombCount--;
+		}
 	}
 
 	time += dt;
@@ -208,8 +220,11 @@ void Game::update(float dt) {
 				player.setGooBarValue(player.getGooBarProgress() + enemy->getGooAmt());
 				if(player.getGooBarProgress() > 0.99f)
 					player.setGooBarValue(1.0f);
-				player.gooCoins += enemy->getGooCoins();
-				hud.gooCoinScale = 1.5f;
+				unsigned int gooCoinCount = enemy->getGooCoins();
+				if(gooCoinCount > 0) {
+					player.gooCoins += gooCoinCount;
+					hud.gooCoinScale = 1.5f;
+				}
 				enemy->squish(particles);
 				enemy.reset();
 			}
@@ -217,7 +232,10 @@ void Game::update(float dt) {
 		}
 
 		enemy->update(dt);
-		if(!enemy->isInsideTile(level) && enemy->moveEnemyTimer.update(dt)) {
+		if(!enemy->isInsideTile(level) 
+			&& !enemy->translationAnimationActive 
+			&& enemy->moveEnemyTimer.update(dt)
+		) {
 			int prevx = enemy->x;
 			int prevy = enemy->y;
 			enemy->moveEnemy(level);

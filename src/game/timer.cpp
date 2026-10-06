@@ -13,6 +13,8 @@ Timer::Timer(float intervalAmt, bool shouldLoop) {
 }
 
 bool Timer::update(float dt) {
+	if(!active)
+		return false;
 	if(currentTime < 0.0f && !loop)
 		return false;
 	currentTime -= dt;
