@@ -7,6 +7,29 @@
 
 const int MAX_PLAYER_DIST_DEPTH = 15;
 
+// Remove nullptr instances from a vector of unique_ptrs, stop when maxRemove
+// items are removed. However, if maxRemove is negative, remove all nullptr
+// instances.
+template<typename T>
+static unsigned int cleanupList(std::vector<std::unique_ptr<T>> &list, unsigned int maxRemove = 32) {
+	unsigned int removed = 0;
+	while(removed < maxRemove || maxRemove < 0) {
+		int index = -1;
+		for(int i = 0; i < list.size(); i++) {
+			if(list.at(i) == nullptr) {
+				index = i;
+				break;
+			}
+		}
+		if(index < 0)
+			break;
+		list.at(index) = std::move(list.at(list.size() - 1));
+		list.pop_back();
+		removed++;
+	}
+	return removed;
+}
+
 void Game::loadFromGeneratedLevel(GeneratedLevel &genLevel) {
 	level = genLevel.level;
 	enemies = std::move(genLevel.enemies);
@@ -211,23 +234,27 @@ void Game::update(float dt) {
 
 	for(auto &enemy : enemies) {
 		if(enemy == nullptr)
-			continue;
+			continue;	
 
-		if(enemy->isInsideTile(level)) {
-			// Enemy got squished
-			if(!enemy->uncollide(level)) {
-				// Update the goo bar
-				player.setGooBarValue(player.getGooBarProgress() + enemy->getGooAmt());
-				if(player.getGooBarProgress() > 0.99f)
-					player.setGooBarValue(1.0f);
-				unsigned int gooCoinCount = enemy->getGooCoins();
-				if(gooCoinCount > 0) {
-					player.gooCoins += gooCoinCount;
-					hud.gooCoinScale = 1.5f;
-				}
-				enemy->squish(particles);
-				enemy.reset();
+		// Enemy got squished
+		if(enemy->isInsideTile(level) && !enemy->uncollide(level))
+			enemy->health = 0;
+
+		enemy->interactWithEnemies(enemies);
+		enemy->interactWithPlayer(player);
+
+		if(enemy->isDead()) {
+			// Update the goo bar
+			player.setGooBarValue(player.getGooBarProgress() + enemy->getGooAmt());
+			if(player.getGooBarProgress() > 0.99f)
+				player.setGooBarValue(1.0f);
+			unsigned int gooCoinCount = enemy->getGooCoins();
+			if(gooCoinCount > 0) {
+				player.gooCoins += gooCoinCount;
+				hud.gooCoinScale = 1.5f;
 			}
+			enemy->squish(particles);
+			enemy.reset();
 			continue;
 		}
 
@@ -268,8 +295,8 @@ void Game::update(float dt) {
 
 	camera.follow(dt, player.getDisplayPos());
 
-	clearEnemyList();
-	clearParticleList();
+	cleanupList(enemies);
+	cleanupList(particles);
 
 	// The player just died
 	if(!playerCurrentlyDead && player.isDead())
@@ -317,44 +344,6 @@ EnemyList &Game::getEnemies() {
 
 ParticleList &Game::getParticles() {
 	return particles;
-}
-
-void Game::clearEnemyList() {
-	const int MAX_REMOVE = 32;
-	int removed = 0;
-	while(removed < MAX_REMOVE) {
-		int index = -1;
-		for(int i = 0; i < enemies.size(); i++) {
-			if(enemies.at(i) == nullptr) {
-				index = i;
-				break;
-			}
-		}
-		if(index < 0)
-			break;
-		enemies.at(index) = std::move(enemies.at(enemies.size() - 1));
-		enemies.pop_back();
-		removed++;
-	}
-}
-
-void Game::clearParticleList() {
-	const int MAX_REMOVE = 32;
-	int removed = 0;
-	while(removed < MAX_REMOVE) {
-		int index = -1;
-		for(int i = 0; i < particles.size(); i++) {
-			if(particles.at(i) == nullptr) {
-				index = i;
-				break;
-			}
-		}
-		if(index < 0)
-			break;
-		particles.at(index) = std::move(particles.at(particles.size() - 1));
-		particles.pop_back();
-		removed++;
-	}
 }
 
 float Game::getTime() const {

@@ -20,6 +20,8 @@ void Enemy::initEnemy(int px, int py, const std::string &texId, float scale) {
 	squishyAnimation = AnimationValue(default_scale - 0.05f, default_scale + 0.05f, 0.5f);
 	squishyAnimation.time = randf_range(0.0f, 1.0f);
 	squishyAnimation.loop = true;
+
+	health = maxHealth;
 }
 
 void Enemy::setDir(int dx, int dy) {
@@ -162,4 +164,8 @@ float Enemy::getGooAmt() const {
 
 unsigned int Enemy::getGooCoins() const {
 	return rand() % (maxGooCoin - minGooCoin + 1) + minGooCoin;
+}
+
+bool Enemy::isDead() const {
+	return health <= 0;
 }

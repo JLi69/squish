@@ -2,7 +2,16 @@
 #include "random_utils.hpp"
 
 void Particle::update(float dt) {
-	// Do nothing
+	time += dt;
+	position += vel * dt;
+	if(glm::length(vel) > 0.0f)
+		vel.y -= gravity * dt;
+
+	if(floorAffected) {
+		position.y = fmax(floory, position.y);
+		if(position.y <= floory)
+			vel = glm::vec2(0.0f);
+	}
 }
 
 bool Particle::finished() const {
@@ -25,24 +34,56 @@ BloodParticle::BloodParticle(glm::vec2 pos, glm::vec4 col, float y) {
 }
 
 void BloodParticle::update(float dt) {
+	Particle::update(dt);
+
 	if(glm::length(vel) <= 0.0f && currentScale > 0.0f) {
 		currentScale -= dt;
+		currentScale = fmax(currentScale, 0.0f);
 		sprite.shadowScale = currentScale * defaultShadowScale;
 		sprite.scale = currentScale * defaultSpriteScale;
-		currentScale = fmax(currentScale, 0.0f);
 		sprite.offset.y = -(defaultSpriteScale.y - currentScale * defaultSpriteScale.y) / 2.0f;
 		return;
-	}
-
-	position += vel * dt;
-	if(glm::length(vel) > 0.0f)
-		vel.y -= 32.0f * dt;
-	position.y = fmax(floory, position.y);
-	if(position.y <= floory)
-		vel = glm::vec2(0.0f);
+	}	
 }
 
 bool BloodParticle::finished() const {
+	return currentScale <= 0.0f;
+}
+
+ExplosionParticle::ExplosionParticle(glm::vec2 pos, Color col) {
+	sprite = Sprite("particle", glm::vec2(0.0f));
+	sprite.onTop = true;
+	sprite.drawShadow = false;
+	position = pos;
+	color = col;
+	floory = 0.0f;
+	sprite.rotation = randf_range(0.0f, 360.0f);
+	float scale = randf_range(0.6f, 1.0f);
+	sprite.scale = glm::vec2(scale);
+	sprite.shadowScale = glm::vec2(scale * 1.3f, 0.15f);
+	sprite.shadowOffset = glm::vec2(0.0f, -scale / 2.0f * 0.9f);
+
+	defaultShadowScale = sprite.shadowScale;
+	defaultSpriteScale = sprite.scale;
+
+	gravity = 0.0f;
+	floorAffected = false;
+
+	if(randf() < 0.5f)
+		rotationDir = -1.0f;
+}
+
+void ExplosionParticle::update(float dt) {
+	Particle::update(dt);
+
+	sprite.rotation += 180.0f * rotationDir * dt;
+	vel -= vel * 8.0f * dt;
+	currentScale = ((-time * (time - 0.5f)) * 24.0f + 1.0f) * defaultSpriteScale.x;
+	currentScale = fmax(currentScale, 0.0f);
+	sprite.scale = currentScale * defaultSpriteScale;
+}
+
+bool ExplosionParticle::finished() const {
 	return currentScale <= 0.0f;
 }
 
@@ -63,6 +104,21 @@ void addBloodParticles(
 			floory
 		);
 		particle->vel = glm::vec2(cos(angle) * 0.5f, sin(angle)) * 6.0f;
+		particles.push_back(std::move(particle));
+	}
+}
+
+void addExplosion(ParticleList &particles, int count, glm::vec2 center, Color color) {
+	for(int i = 0; i < count; i++) {
+		float angle = randf_range(0.0f, 2.0f * M_PI);
+		float dist = randf_range(0.0f, 0.2f);
+		glm::vec2 offset = glm::vec2(cos(angle), sin(angle)) * dist;
+		Color modifiedCol = color * Color(randf_range(0.7f, 2.0f), 1.0f, 1.0f, 1.0f);
+		std::unique_ptr<ExplosionParticle> particle = std::make_unique<ExplosionParticle>(
+			center + offset,
+			modifiedCol
+		);
+		particle->vel = glm::vec2(cos(angle), sin(angle)) * 10.0f;
 		particles.push_back(std::move(particle));
 	}
 }

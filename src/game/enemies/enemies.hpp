@@ -28,6 +28,7 @@ protected:
 
 	void initEnemy(int px, int py, const std::string &texId, float scale);
 public:
+	int health = 1, maxHealth = 1;
 	Timer moveEnemyTimer;
 	Timer attackTimer;
 	bool attackAnimationActive = false;
@@ -43,7 +44,9 @@ public:
 	bool uncollide(Level &level);
 	bool isInsideTile(const Level &level) const;
 
-	void squish(ParticleList &particles) const;
+	virtual void squish(ParticleList &particles) const;
+	virtual void interactWithEnemies(std::vector<std::unique_ptr<Enemy>> &enemies) {};
+	virtual void interactWithPlayer(Player &player) {};
 
 	virtual bool canAttackPlayer(const Player &player);
 	virtual void attackPlayer(Player &player);
@@ -53,6 +56,8 @@ public:
 	float getGooAmt() const;
 	// Randomly generate the number of goo coins the player receives
 	unsigned int getGooCoins() const;
+
+	bool isDead() const;
 };
 
 class Slime : public Enemy {
@@ -74,5 +79,6 @@ public:
 
 typedef std::function<std::unique_ptr<Enemy>(int, int)> EnemySpawner;
 typedef std::vector<std::pair<int, EnemySpawner>> EnemySpawnWeights;
+typedef std::vector<std::unique_ptr<Enemy>> EnemyList;
 
 EnemySpawner getRandEnemy(const EnemySpawnWeights &weights, unsigned int randval);

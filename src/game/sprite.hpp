@@ -5,6 +5,7 @@
 
 struct Sprite {
 	std::string spriteTexId = "";
+	bool onTop = false;
 	// Transform
 	glm::vec2 offset = glm::vec2(0.0f);
 	glm::vec2 scale = glm::vec2(1.0f);

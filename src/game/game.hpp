@@ -2,15 +2,12 @@
 
 #include <stack>
 #include <glm/glm.hpp>
-#include <memory>
 #include "level.hpp"
 #include "enemies/enemies.hpp"
 #include "tilemap_gfx.hpp"
 #include "generate_level.hpp"
 #include "player.hpp"
 #include "particles.hpp"
-
-typedef std::vector<std::unique_ptr<Enemy>> EnemyList;
 
 struct Camera2D {
 	const float MIN_FOLLOW_DIST = 0.05f;
@@ -43,10 +40,6 @@ class Game {
 	void movePlayer();
 	// Returns true if a block was able to be succesfully pushed
 	bool pushBlocks(int prevx, int prevy, int &x, int &y);
-	// Removes all null enemies from the enemy list
-	void clearEnemyList();
-	// Removes all null particles from the particle list
-	void clearParticleList();
 
 	std::stack<std::pair<int, int>> chunksToUpdate;
 public:

@@ -176,7 +176,11 @@ bool displayParticle(const Particle &particle, const Level &level, const glm::ma
 	ShaderProgram &shadowShader = SHADERS->getShader("shadow_shader");
 
 	float displayy = particle.position.y + particle.sprite.offset.y;
-	float z = getZFromY(particle.floory, float(level.getTopY()), float(level.getBottomY()));
+	float z;
+	if(particle.sprite.onTop)
+		z = -1.0f;
+	else
+		z = getZFromY(particle.floory, float(level.getTopY()), float(level.getBottomY()));
 	glm::vec3 displayPos = glm::vec3(particle.position.x + particle.sprite.offset.x, displayy, z);
 	glm::mat4 transform = glm::mat4(1.0f);
 	transform = glm::translate(transform, displayPos);
