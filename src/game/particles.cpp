@@ -77,8 +77,11 @@ void ExplosionParticle::update(float dt) {
 	Particle::update(dt);
 
 	sprite.rotation += 180.0f * rotationDir * dt;
-	vel -= vel * 8.0f * dt;
-	currentScale = ((-time * (time - 0.5f)) * 24.0f + 1.0f) * defaultSpriteScale.x;
+	if(8.0f * dt > 1.0f)
+		vel = glm::vec3(0.0f);
+	else
+		vel -= vel * 12.0f * dt;
+	currentScale = ((-time * (time - 0.75f)) * 10.0f + 1.0f) * defaultSpriteScale.x;
 	currentScale = fmax(currentScale, 0.0f);
 	sprite.scale = currentScale * defaultSpriteScale;
 }

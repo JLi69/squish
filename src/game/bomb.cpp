@@ -60,5 +60,6 @@ void Bomb::interactWithEnemies(EnemyList &enemies) {
 
 void Bomb::squish(ParticleList &particles) const {
 	glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
+	center.y += 0.1f;
 	addExplosion(particles, 24, center, colors::SLIME_GREEN);
 }
