@@ -163,6 +163,8 @@ bool displaySprite(
 	spriteShader.use();
 	spriteShader.uniformBool("flipVert", sprite.flip);	
 	spriteShader.uniformMat4x4("transform", transform);
+	spriteShader.uniformVec4("color", sprite.color);
+	spriteShader.uniformVec4("multColor", sprite.multColor);
 	TEXTURES->bindTexture(sprite.spriteTexId, GL_TEXTURE0);
 	VAOS->draw();
 
@@ -213,6 +215,7 @@ bool displayParticle(const Particle &particle, const Level &level, const glm::ma
 	spriteShader.uniformBool("flipVert", particle.sprite.flip);	
 	spriteShader.uniformMat4x4("transform", transform);
 	spriteShader.uniformVec4("color", particle.color);
+	spriteShader.uniformVec4("multColor", particle.sprite.multColor);
 	TEXTURES->bindTexture(particle.sprite.spriteTexId, GL_TEXTURE0);
 	VAOS->draw();
 
@@ -228,6 +231,7 @@ void displayIcon(const std::string &texture, const Transform &transform) {
 	glm::mat4 transformMat = transform.getMat();
 	spriteShader.uniformMat4x4("transform", transformMat);
 	spriteShader.uniformVec4("color", colors::WHITE);
+	spriteShader.uniformVec4("multColor", colors::BLACK);
 	TEXTURES->bindTexture(texture, GL_TEXTURE0);
 	VAOS->draw();
 }

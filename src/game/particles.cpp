@@ -116,7 +116,7 @@ void addExplosion(ParticleList &particles, int count, glm::vec2 center, Color co
 		float angle = randf_range(0.0f, 2.0f * M_PI);
 		float dist = randf_range(0.0f, 0.2f);
 		glm::vec2 offset = glm::vec2(cos(angle), sin(angle)) * dist;
-		Color modifiedCol = color * Color(randf_range(0.7f, 2.0f), 1.0f, 1.0f, 1.0f);
+		Color modifiedCol = color * Color(randf_range(1.0f, 2.0f), 1.0f, 1.0f, 1.0f);
 		std::unique_ptr<ExplosionParticle> particle = std::make_unique<ExplosionParticle>(
 			center + offset,
 			modifiedCol

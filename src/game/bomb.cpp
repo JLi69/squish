@@ -1,6 +1,7 @@
 #include "bomb.hpp"
 
 const float BOMB_EXPLOSION_TIME = 2.0f;
+const float POWER = 2.0f;
 
 Bomb::Bomb(int px, int py) {
 	initEnemy(px, py, "goo_bomb", 0.9f);
@@ -30,6 +31,13 @@ void Bomb::update(float dt) {
 	// Explode
 	if(explosionTimer.update(dt))
 		health = 0;
+
+	if(explosionTimer.currentTime < 1.5f) {
+		float time = 1.5f - explosionTimer.currentTime;
+		float sine = sinf(4.0f * powf(powf(3.0 * M_PI / 2.0, 1.0 / POWER) + time, POWER));
+		float sample_point = (sine + 1.0) / 2.0;
+		sprite.color = (1.0f - sample_point) * colors::BLACK + sample_point * colors::SLIME_GREEN * 0.5f;
+	}
 }
 
 void Bomb::interactWithPlayer(Player &player) {

@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <string>
+#include "colors.hpp"
 
 struct Sprite {
 	std::string spriteTexId = "";
@@ -16,6 +17,8 @@ struct Sprite {
 	glm::vec2 shadowOffset = glm::vec2(0.0f);	
 	bool flip = false;
 	bool drawShadow = true;
+	Color multColor = colors::WHITE;
+	Color color = colors::BLACK;
 	Sprite(const std::string &texId, glm::vec2 pos) {
 		spriteTexId = texId;
 		offset = pos;

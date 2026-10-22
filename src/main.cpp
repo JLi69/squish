@@ -53,8 +53,6 @@ void display(Game &game, int w, int h) {
 	const Player &player = game.getPlayer();
 	setupShaderCam("shadow_shader", w, h, DEFAULT_ZOOM, camMat);
 	setupShaderCam("sprite_shader", w, h, DEFAULT_ZOOM, camMat);
-	SHADERS->getShader("sprite_shader").uniformVec4("color", player.getColor());
-	SHADERS->getShader("sprite_shader").uniformVec4("multColor", player.getMultColor());
 	if(!player.isDead()) {	
 		glm::vec2 playerPos = player.getDisplayPos();
 		displaySprite(player.sprite, playerPos, game.getLevel(), windowCamMat);
