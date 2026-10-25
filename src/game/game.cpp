@@ -221,17 +221,14 @@ void Game::update(float dt) {
 			level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
 		}
 	}
-	std::set<std::pair<int ,int>> pushTileChunkUpdateList;
-	level.updatePushedTiles(dt, pushTileChunkUpdateList);
-	for(const auto &chunkpos : pushTileChunkUpdateList)
-		chunksToUpdate.push(chunkpos);
-	if(!pushTileChunkUpdateList.empty())
-		level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
+	std::set<std::pair<int ,int>> chunkUpdateList;
+	level.updatePushedTiles(dt, chunkUpdateList);	
 
 	std::set<std::pair<int, int>> enemyPositions;
 	for(const auto &enemy : enemies)
 		enemyPositions.insert({ enemy->x, enemy->y });
 
+	std::stack<LevelUpdate> levelUpdates;
 	for(auto &enemy : enemies) {
 		if(enemy == nullptr)
 			continue;	
@@ -242,6 +239,7 @@ void Game::update(float dt) {
 
 		enemy->interactWithEnemies(enemies);
 		enemy->interactWithPlayer(player);
+		enemy->interactWithLevel(level, levelUpdates);
 
 		if(enemy->isDead()) {
 			// Update the goo bar
@@ -279,7 +277,10 @@ void Game::update(float dt) {
 		}
 		enemy->updateDir(level, player);
 
-		if(!enemy->attackAnimationActive && enemy->attackTimer.update(dt) && enemy->canAttackPlayer(player))
+		if(!enemy->attackAnimationActive 
+			&& enemy->attackTimer.update(dt) 
+			&& enemy->canAttackPlayer(player)
+		)
 			enemy->attackPlayer(player);
 	}
 
@@ -292,6 +293,13 @@ void Game::update(float dt) {
 		}
 		particle->update(dt);
 	}
+
+	level.applyLevelUpdates(levelUpdates, chunkUpdateList);
+
+	for(const auto &chunkpos : chunkUpdateList)
+		chunksToUpdate.push(chunkpos);
+	if(!chunkUpdateList.empty())
+		level.updateDistToPlayerMap(player.x, player.y, MAX_PLAYER_DIST_DEPTH);
 
 	camera.follow(dt, player.getDisplayPos());
 

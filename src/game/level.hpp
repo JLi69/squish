@@ -5,6 +5,7 @@
 #include "animation.hpp"
 #include <map>
 #include <set>
+#include <stack>
 
 struct PushedTile {
 	// Vao that should be displayed for this tile
@@ -13,6 +14,17 @@ struct PushedTile {
 	int destinationX, destinationY;
 	Tile tile;
 	PushedTile(int startx, int starty, int dirx, int diry, Tile t);
+};
+
+enum LevelUpdateType {
+	DESTROY,
+	PUSH
+};
+
+struct LevelUpdate {
+	int x, y;
+	LevelUpdateType updateType;
+	LevelUpdate(int px, int py, LevelUpdateType update);
 };
 
 class Level {
@@ -43,9 +55,14 @@ public:
 	void addPushedBlock(int x, int y, int dirx, int diry, Tile tile);
 	void clearBlocked(int x, int y);
 	bool isBlocked(int x, int y) const;
-	void updatePushedTiles(float dt, std::set<std::pair<int ,int>> &chunksToUpdate);
+	void updatePushedTiles(float dt, std::set<std::pair<int, int>> &chunksToUpdate);
 	const std::map<std::pair<int, int>, PushedTile> &getPushedTiles() const;
 
 	void updateDistToPlayerMap(int playerx, int playery, int maxDepth);
 	uint32_t getDistToPlayer(int x, int y) const;
+
+	void applyLevelUpdates(
+		std::stack<LevelUpdate> &levelUpdates,
+		std::set<std::pair<int, int>> &chunksToUpdate
+	);
 };

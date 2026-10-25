@@ -71,3 +71,12 @@ void Bomb::squish(ParticleList &particles) const {
 	center.y += 0.1f;
 	addExplosion(particles, 24, center, colors::SLIME_GREEN);
 }
+
+void Bomb::interactWithLevel(const Level &level, std::stack<LevelUpdate> &levelUpdates) {
+	if(health > 0)
+		return;
+
+	for(int ix = x - 1; ix <= x + 1; ix++)
+		for(int iy = y - 1; iy <= y + 1; iy++)
+			levelUpdates.push(LevelUpdate(ix, iy, LevelUpdateType::DESTROY));
+}

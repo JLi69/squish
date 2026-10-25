@@ -31,6 +31,7 @@
 "stone" {
 	"id" = "5";
 	"tex_coords" = "5.0, 0.0";
+	"tags" = "cannot_destroy";
 }
 
 "teleporter" {

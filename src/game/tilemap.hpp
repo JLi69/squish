@@ -9,6 +9,7 @@
 struct Tile {	
 	uint16_t tileId;
 	bool canPush = false;
+	bool indestructible = false;
 
 	// Texture offsets for the top of the tile
 	static std::unordered_map<uint16_t, glm::vec2> textureOffsets;

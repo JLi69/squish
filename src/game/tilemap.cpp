@@ -132,6 +132,8 @@ void Tile::initTiles(const char *path) {
 			std::string trimmedTag = str_utils::trim(tag);
 			if(trimmedTag == "can_push")
 				tile.canPush = true;
+			else if(trimmedTag == "cannot_destroy")
+				tile.indestructible = true;
 		}
 		nameToTile[entry.name] = tile;
 	}

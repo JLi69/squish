@@ -20,6 +20,12 @@ PushedTile::PushedTile(int startx, int starty, int dirx, int diry, Tile t) {
 	tile = t;
 }
 
+LevelUpdate::LevelUpdate(int px, int py, LevelUpdateType update) {
+	x = px;
+	y = py;
+	updateType = update;
+}
+
 Level::Level(int lx, int by, int rx, int ty) {
 	floorTiles = TileMap(lx, by, rx, ty);
 	wallTiles = TileMap(lx, by, rx, ty);
@@ -155,4 +161,32 @@ uint32_t Level::getDistToPlayer(int x, int y) const {
 	if(!distToPlayer.count({ x, y }))
 		return UINT32_MAX;
 	return distToPlayer.at({ x, y });
+}
+
+void Level::applyLevelUpdates(
+	std::stack<LevelUpdate> &levelUpdates,
+	std::set<std::pair<int, int>> &chunksToUpdate
+) {
+	while(!levelUpdates.empty()) {
+		LevelUpdate update = levelUpdates.top();
+		switch(update.updateType) {
+		case LevelUpdateType::DESTROY:
+			if(!getWallTile(update.x, update.y).indestructible)
+				setWallTile(update.x, update.y, Tile());
+			if(pushedTiles.count({ update.x, update.y }))
+				pushedTiles.erase({ update.x, update.y });
+			for(int x = update.x - 1; x <= update.x + 1; x++) {
+				for(int y = update.y - 1; y <= update.y + 1; y++) {
+					std::pair<int, int> chunkpos;
+					chunkpos.first = tileToChunkCoord(x);
+					chunkpos.second = tileToChunkCoord(y);
+					chunksToUpdate.insert(chunkpos);
+				}
+			}
+			break;
+		case LevelUpdateType::PUSH:
+			break;
+		}
+		levelUpdates.pop();
+	}
 }

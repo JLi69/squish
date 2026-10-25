@@ -7,6 +7,7 @@
 #include "colors.hpp"
 #include "timer.hpp"
 #include <functional>
+#include <stack>
 
 const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.3f);
 
@@ -45,8 +46,9 @@ public:
 	bool isInsideTile(const Level &level) const;
 
 	virtual void squish(ParticleList &particles) const;
-	virtual void interactWithEnemies(std::vector<std::unique_ptr<Enemy>> &enemies) {};
-	virtual void interactWithPlayer(Player &player) {};
+	virtual void interactWithEnemies(std::vector<std::unique_ptr<Enemy>> &enemies) {}
+	virtual void interactWithLevel(const Level &level, std::stack<LevelUpdate> &levelUpdates) {}
+	virtual void interactWithPlayer(Player &player) {}
 
 	virtual bool canAttackPlayer(const Player &player);
 	virtual void attackPlayer(Player &player);

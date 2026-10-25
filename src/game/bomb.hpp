@@ -11,4 +11,5 @@ public:
 	void squish(ParticleList &particles) const override;
 	void interactWithPlayer(Player &player) override;
 	void interactWithEnemies(EnemyList &enemies) override;
+	void interactWithLevel(const Level &level, std::stack<LevelUpdate> &levelUpdates) override;
 };
