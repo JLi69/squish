@@ -58,6 +58,8 @@ void Bomb::interactWithEnemies(EnemyList &enemies) {
 
 	// Explode, damage nearby enemies
 	for(auto &enemy : enemies) {
+		if(enemy == nullptr)
+			continue;
 		int distx = abs(enemy->x - x),
 			disty = abs(enemy->y - y);
 		if(distx > 1 || disty > 1)

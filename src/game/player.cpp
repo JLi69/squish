@@ -21,7 +21,7 @@ Player::Player(int px, int py) {
 	);
 	squishyAnimation.loop = true;
 
-	gooBombCount = 1;
+	gooBombCount = 3;
 }
 
 void Player::update(float dt) {
