@@ -217,6 +217,18 @@ bool displayParticle(const Particle &particle, const Level &level, const glm::ma
 	spriteShader.uniformVec4("color", particle.color);
 	spriteShader.uniformVec4("multColor", particle.sprite.multColor);
 	TEXTURES->bindTexture(particle.sprite.spriteTexId, GL_TEXTURE0);
+	
+	spriteShader.uniformBool("useColorTexture", !particle.texture.empty());
+	if(!particle.texture.empty()) {
+		TEXTURES->bindTexture(particle.texture, GL_TEXTURE1);
+		spriteShader.uniformVec2("colorScale", particle.textureScale);
+		spriteShader.uniformVec2("colorOffset", particle.textureOffset);
+	}
+	else {
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, 0);
+	}
+	
 	VAOS->draw();
 
 	return true;
@@ -232,6 +244,7 @@ void displayIcon(const std::string &texture, const Transform &transform) {
 	spriteShader.uniformMat4x4("transform", transformMat);
 	spriteShader.uniformVec4("color", colors::WHITE);
 	spriteShader.uniformVec4("multColor", colors::BLACK);
+	spriteShader.uniformBool("useColorTexture", false);
 	TEXTURES->bindTexture(texture, GL_TEXTURE0);
 	VAOS->draw();
 }
@@ -254,6 +267,7 @@ void displayUint(const Transform &transform, Color color, unsigned int val) {
 	spriteShader.use();
 	spriteShader.uniformBool("flipVert", false);	
 	spriteShader.uniformVec4("color", colors::WHITE);
+	spriteShader.uniformBool("useColorTexture", false);
 	TEXTURES->bindTexture("digits", GL_TEXTURE0);
 
 	std::vector<unsigned int> digits;

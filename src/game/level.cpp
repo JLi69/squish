@@ -165,22 +165,51 @@ uint32_t Level::getDistToPlayer(int x, int y) const {
 
 void Level::applyLevelUpdates(
 	std::stack<LevelUpdate> &levelUpdates,
-	std::set<std::pair<int, int>> &chunksToUpdate
+	std::set<std::pair<int, int>> &chunksToUpdate,
+	ParticleList &particles
 ) {
 	while(!levelUpdates.empty()) {
 		LevelUpdate update = levelUpdates.top();
+		const Tile tile = getWallTile(update.x, update.y);
+
 		switch(update.updateType) {
 		case LevelUpdateType::DESTROY:
-			if(!getWallTile(update.x, update.y).indestructible)
+			if(!tile.indestructible && !tile.isEmpty()) {
 				setWallTile(update.x, update.y, Tile());
-			if(pushedTiles.count({ update.x, update.y }))
-				pushedTiles.erase({ update.x, update.y });
+				addTileParticles(
+					particles,
+					rand() % 8 + 8,
+					glm::vec2(float(update.x) + 0.5f, float(update.y) + 0.5f),
+					tile
+				);
+			}
+			
+			for(int dx = -1; dx <= 1; dx++) {
+				for(int dy = -1; dy <= 1; dy++) {
+					int x = update.x + dx,
+						y = update.y + dy;
+					if(!pushedTiles.count({ x, y }))
+						continue;
+					PushedTile pushed = pushedTiles.at({ x, y });
+					glm::vec2 pushedPos = glm::vec2(
+						pushed.translateX.value() + 0.5f,
+						pushed.translateY.value() + 0.5f
+					);
+					bool destroy = pushed.destinationX == update.x && pushed.destinationY == update.y;
+					destroy = destroy || (dx == 0 && dy == 0);
+					if(destroy) {
+						addTileParticles(particles, rand() % 8 + 8, pushedPos, pushed.tile);
+						pushedTiles.erase({ x, y });
+					}
+				}
+			}	
+			
 			for(int x = update.x - 1; x <= update.x + 1; x++) {
 				for(int y = update.y - 1; y <= update.y + 1; y++) {
 					std::pair<int, int> chunkpos;
 					chunkpos.first = tileToChunkCoord(x);
 					chunkpos.second = tileToChunkCoord(y);
-					chunksToUpdate.insert(chunkpos);
+					chunksToUpdate.insert(chunkpos);	
 				}
 			}
 			break;

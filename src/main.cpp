@@ -191,6 +191,13 @@ void display(Game &game, int w, int h) {
 	}
 }
 
+void initShaderUniforms() {
+	ShaderProgram &flatSpriteShader = SHADERS->getShader("flat_sprite_shader");
+	flatSpriteShader.use();
+	flatSpriteShader.uniformInt("tex", 0);
+	flatSpriteShader.uniformInt("colorTex", 1);
+}
+
 int main(int argc, char *argv[]) {
 	srand(time(NULL));
 
@@ -206,7 +213,8 @@ int main(int argc, char *argv[]) {
 	Tile::initTiles("assets/tiles.impfile");
 	VAOS->genSimple();
 	// Setup shaders
-	SHADERS->importFromFile("assets/shaders.impfile");	
+	SHADERS->importFromFile("assets/shaders.impfile");
+	initShaderUniforms();
 	// Setup textures
 	TEXTURES->importFromFile("assets/textures.impfile");
 

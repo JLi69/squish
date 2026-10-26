@@ -294,7 +294,7 @@ void Game::update(float dt) {
 		particle->update(dt);
 	}
 
-	level.applyLevelUpdates(levelUpdates, chunkUpdateList);
+	level.applyLevelUpdates(levelUpdates, chunkUpdateList, particles);
 
 	for(const auto &chunkpos : chunkUpdateList)
 		chunksToUpdate.push(chunkpos);

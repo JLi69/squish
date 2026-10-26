@@ -3,6 +3,7 @@
 #include "tilemap.hpp"
 #include "gfx.hpp"
 #include "animation.hpp"
+#include "particles.hpp"
 #include <map>
 #include <set>
 #include <stack>
@@ -63,6 +64,7 @@ public:
 
 	void applyLevelUpdates(
 		std::stack<LevelUpdate> &levelUpdates,
-		std::set<std::pair<int, int>> &chunksToUpdate
+		std::set<std::pair<int, int>> &chunksToUpdate,
+		ParticleList &particles
 	);
 };

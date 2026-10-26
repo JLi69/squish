@@ -18,7 +18,7 @@ bool Particle::finished() const {
 	return false;
 }
 
-BloodParticle::BloodParticle(glm::vec2 pos, glm::vec4 col, float y) {
+SplatParticle::SplatParticle(glm::vec2 pos, glm::vec4 col, float y) {
 	sprite = Sprite("particle", glm::vec2(0.0f));
 	position = pos;
 	color = col;
@@ -33,7 +33,7 @@ BloodParticle::BloodParticle(glm::vec2 pos, glm::vec4 col, float y) {
 	defaultSpriteScale = sprite.scale;
 }
 
-void BloodParticle::update(float dt) {
+void SplatParticle::update(float dt) {
 	Particle::update(dt);
 
 	if(glm::length(vel) <= 0.0f && currentScale > 0.0f) {
@@ -46,7 +46,7 @@ void BloodParticle::update(float dt) {
 	}	
 }
 
-bool BloodParticle::finished() const {
+bool SplatParticle::finished() const {
 	return currentScale <= 0.0f;
 }
 
@@ -101,7 +101,7 @@ void addBloodParticles(
 		float angle = randf_range(0.0f, 2.0f * M_PI);
 		float dist = randf_range(0.0f, 0.3f);
 		glm::vec2 offset = glm::vec2(cos(angle), sin(angle)) * dist;
-		std::unique_ptr<BloodParticle> particle = std::make_unique<BloodParticle>(
+		std::unique_ptr<SplatParticle> particle = std::make_unique<SplatParticle>(
 			center + offset,
 			bloodColor,
 			floory
@@ -122,6 +122,29 @@ void addExplosion(ParticleList &particles, int count, glm::vec2 center, Color co
 			modifiedCol
 		);
 		particle->vel = glm::vec2(cos(angle), sin(angle)) * 10.0f;
+		particles.push_back(std::move(particle));
+	}
+}
+
+void addTileParticles(ParticleList &particles, int count, glm::vec2 center, Tile tile) {
+	for(int i = 0; i < count; i++) {
+		float dx = randf_range(-0.9f, -0.1f);
+		float dy = randf_range(-0.4f, 0.4f);
+		glm::vec2 offset = glm::vec2(dx, dy);
+		std::unique_ptr<SplatParticle> particle = std::make_unique<SplatParticle>(
+			center + offset,
+			Color(0.9f, 0.9f, 0.9f, 1.0f),
+			center.y + offset.y - 0.6f
+		);
+		
+		particle->texture = "tiles";
+		particle->textureOffset = tile.getTexOffset();	
+		glm::vec2 texOffset = glm::vec2(randf_range(0.0f, 0.6f), randf_range(0.0f, 0.5f)) / 16.0f;
+		particle->textureOffset /= 16.0f;
+		particle->textureOffset += texOffset;
+		particle->textureScale /= (16.0f * 2.0f);
+		
+		particle->vel = glm::normalize(glm::vec2(dx + 0.5f, randf_range(0.2f, 0.3f))) * 2.0f;
 		particles.push_back(std::move(particle));
 	}
 }
