@@ -23,7 +23,7 @@ protected:
 	
 	AnimationValue attackOffsetX, attackOffsetY;
 
-	float gooAmt = 0.05f;
+	float gooAmt = 1.0f / 12.0f;
 
 	unsigned int minGooCoin = 1, maxGooCoin = 3;
 
@@ -33,6 +33,7 @@ public:
 	Timer moveEnemyTimer;
 	Timer attackTimer;
 	bool attackAnimationActive = false;
+	bool canGiveGoo = false;
 
 	void setDir(int dx, int dy);
 	void update(float dt) override;

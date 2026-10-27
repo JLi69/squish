@@ -234,8 +234,10 @@ void Game::update(float dt) {
 			continue;	
 
 		// Enemy got squished
-		if(enemy->isInsideTile(level) && !enemy->uncollide(level))
+		if(enemy->isInsideTile(level) && !enemy->uncollide(level)) {
 			enemy->health = 0;
+			enemy->canGiveGoo = true;
+		}
 
 		enemy->interactWithEnemies(enemies);
 		enemy->interactWithPlayer(player);

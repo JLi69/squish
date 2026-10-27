@@ -159,10 +159,14 @@ EnemySpawner getRandEnemy(const EnemySpawnWeights &weights, unsigned int randval
 }
 
 float Enemy::getGooAmt() const {
+	if(!canGiveGoo)
+		return 0.0f;
 	return gooAmt;
 }
 
 unsigned int Enemy::getGooCoins() const {
+	if(!canGiveGoo)
+		return 0;
 	return rand() % (maxGooCoin - minGooCoin + 1) + minGooCoin;
 }
 
