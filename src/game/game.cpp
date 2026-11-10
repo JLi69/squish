@@ -4,6 +4,7 @@
 #include <set>
 #include <glm/gtc/matrix_transform.hpp>
 #include <random>
+#include "audio.hpp"
 
 const int MAX_PLAYER_DIST_DEPTH = 15;
 
@@ -156,8 +157,20 @@ bool Game::pushBlocks(int prevx, int prevy, int &x, int &y) {
 }
 
 void Game::update(float dt) {
-	if(getKeyInputState(GLFW_KEY_ESCAPE) == JUST_PRESSED)
+	if(getKeyInputState(GLFW_KEY_ESCAPE) == JUST_PRESSED) {
 		paused = !paused;
+		if(paused)
+			SNDSRC->pauseAll();
+		else
+			SNDSRC->unpauseAll();
+	}
+
+	glm::vec3 playerListenPos = glm::vec3(
+		player.translateX.value(),
+		player.translateY.value(),
+		0.0f
+	);
+	audio::updateListener(playerListenPos, glm::vec3(0.0f, 0.0f, 1.0f));
 
 	if(paused)
 		return;

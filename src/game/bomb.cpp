@@ -1,4 +1,5 @@
 #include "bomb.hpp"
+#include "audio.hpp"
 
 const float BOMB_EXPLOSION_TIME = 2.0f;
 const float POWER = 2.0f;
@@ -72,6 +73,7 @@ void Bomb::squish(ParticleList &particles) const {
 	glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
 	center.y += 0.1f;
 	addExplosion(particles, 24, center, colors::SLIME_GREEN);
+	SNDSRC->playid("explosion", glm::vec3(center, 0.0f));
 }
 
 void Bomb::interactWithLevel(const Level &level, std::stack<LevelUpdate> &levelUpdates) {

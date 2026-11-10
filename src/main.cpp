@@ -9,6 +9,7 @@
 #include "assets.hpp"
 #include "display.hpp"
 #include "game.hpp"
+#include "audio.hpp"
 
 void display(Game &game, int w, int h) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,6 +201,9 @@ void initShaderUniforms() {
 
 int main(int argc, char *argv[]) {
 	srand(time(NULL));
+	// Initialize audio device
+	audio::SoundDevice* device = audio::SoundDevice::get();
+	alDistanceModel(AL_INVERSE_DISTANCE_CLAMPED);
 
 	bool useTestLevel = false;
 	for(int i = 1; i < argc; i++) {
@@ -217,6 +221,7 @@ int main(int argc, char *argv[]) {
 	initShaderUniforms();
 	// Setup textures
 	TEXTURES->importFromFile("assets/textures.impfile");
+	SFX->importFromFile("assets/sfx.impfile");
 
 	Game game = Game();
 	if(useTestLevel) {
@@ -244,6 +249,8 @@ int main(int argc, char *argv[]) {
 		glfwGetWindowSize(window, &w, &h);
 		display(game, w, h);
 
+		SNDSRC->cleanupSources();
+
 		updateInputStates();
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -255,4 +262,5 @@ int main(int argc, char *argv[]) {
 
 	// Clean up
 	glfwTerminate();
+	SNDSRC->stopAll();
 }
