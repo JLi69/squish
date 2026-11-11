@@ -1,5 +1,6 @@
 #include "player.hpp"
 #include <algorithm>
+#include "audio.hpp"
 
 const float PLAYER_DAMAGE_FLASH_TIME = 0.5f;
 
@@ -48,6 +49,10 @@ int Player::getMaxHealth() const {
 void Player::damage(int amt) {
 	health = std::max(health - amt, 0);
 	playerDamageTimer = PLAYER_DAMAGE_FLASH_TIME;
+	if(health > 0) {
+		glm::vec3 pos = glm::vec3(getDisplayPos(), 0.0f);
+		SNDSRC->playid("splat", pos, 0.35f);
+	}
 }
 
 bool Player::isDead() const {
@@ -58,6 +63,7 @@ void Player::explode(ParticleList &particles) {
 	glm::vec2 center = glm::vec2(float(x), float(y)) + sprite.offset;
 	float floory = float(y) + sprite.shadowOffset.y - 0.06f;
 	addBloodParticles(particles, 24, center, colors::SLIME_GREEN, floory);
+	SNDSRC->playid("splat");
 }
 
 Color Player::getColor() const {

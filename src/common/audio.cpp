@@ -186,6 +186,7 @@ namespace audio {
 		alGenSources(1, &source);
 		alSourcef(source, AL_ROLLOFF_FACTOR, 0.0f);
 		alSourcef(source, AL_PITCH, pitch);
+		alSourcef(source, AL_MAX_GAIN, 32.0f);
 		alSourcef(source, AL_GAIN, gain);
 		alSource3f(source, AL_POSITION, 0.0f, 0.0f, 0.0f);
 		alSource3f(source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);
@@ -208,6 +209,7 @@ namespace audio {
 		alGenSources(1, &source);
 		alSourcef(source, AL_ROLLOFF_FACTOR, rolloff);
 		alSourcef(source, AL_PITCH, pitch);
+		alSourcef(source, AL_MAX_GAIN, 32.0f);
 		alSourcef(source, AL_GAIN, gain);
 		alSource3f(source, AL_POSITION, position.x, position.y, position.z);
 		alSource3f(source, AL_VELOCITY, 0.0f, 0.0f, 0.0f);

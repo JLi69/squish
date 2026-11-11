@@ -3,6 +3,13 @@
 
 "explosion" {
 	"path" = "assets/sfx/explosion.wav";
-	"gain" = "6.0";
-	"rolloff" = "1.25";
+	"gain" = "12.0";
+	"rolloff" = "0.25";
+}
+
+"splat" {
+	"path" = "assets/sfx/splat.wav";
+	"gain" = "0.25";
+	"rolloff" = "2.5";
+	"pitch" = "1.7";
 }

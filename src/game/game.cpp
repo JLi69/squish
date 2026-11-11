@@ -170,7 +170,7 @@ void Game::update(float dt) {
 		player.translateY.value(),
 		0.0f
 	);
-	audio::updateListener(playerListenPos, glm::vec3(0.0f, 0.0f, 1.0f));
+	audio::updateListener(playerListenPos, glm::vec3(0.0f, 0.0f, 0.0f));
 
 	if(paused)
 		return;
@@ -250,6 +250,7 @@ void Game::update(float dt) {
 		if(enemy->isInsideTile(level) && !enemy->uncollide(level)) {
 			enemy->health = 0;
 			enemy->canGiveGoo = true;
+			SNDSRC->playid("splat", glm::vec3(enemy->x, enemy->y, 0.0f));
 		}
 
 		enemy->interactWithEnemies(enemies);
