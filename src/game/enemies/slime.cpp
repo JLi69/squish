@@ -1,9 +1,6 @@
 #include "enemies.hpp"
 #include "random_utils.hpp"
 
-const int DIRECTION_X[] = { -1, 1,  0, 0 };
-const int DIRECTION_Y[] = {  0, 0, -1, 1 };
-
 Slime::Slime(int px, int py) {
 	initEnemy(px, py, "slime", 0.9f);
 	
@@ -28,7 +25,7 @@ void Slime::updateDir(const Level &level, const Player &player) {
 
 	if(dirx == 0 && diry == 0) {
 		int index = rand() % 4;
-		setDir(DIRECTION_X[index], DIRECTION_Y[index]);
+		setDir(enemies::DIRECTION_X[index], enemies::DIRECTION_Y[index]);
 		return;
 	}
 	
@@ -45,7 +42,7 @@ void Slime::updateDir(const Level &level, const Player &player) {
 		return;
 
 	int index = rand() % 4;
-	setDir(DIRECTION_X[index], DIRECTION_Y[index]);
+	setDir(enemies::DIRECTION_X[index], enemies::DIRECTION_Y[index]);
 }
 
 BlueSlime::BlueSlime(int px, int py) : Slime(px, py) {

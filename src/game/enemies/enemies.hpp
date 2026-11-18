@@ -9,7 +9,15 @@
 #include <functional>
 #include <stack>
 
-const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.3f);
+namespace enemies {
+	const glm::vec2 DEFAULT_ENEMY_OFFSET = glm::vec2(0.0f, 0.3f);
+	
+	const int DIRECTION_X[] = { -1, 1,  0, 0 };
+	const int DIRECTION_Y[] = {  0, 0, -1, 1 };
+	
+	const int PRIORITIZE_VERTICAL = 0;
+	const int PRIORITIZE_HORIZONTAL = 1;
+}
 
 class Enemy : public Actor {
 protected:
@@ -26,6 +34,7 @@ protected:
 	float gooAmt = 1.0f / 12.0f;
 
 	unsigned int minGooCoin = 1, maxGooCoin = 3;
+	unsigned int currentStep = 0;
 
 	void initEnemy(int px, int py, const std::string &texId, float scale);
 public:

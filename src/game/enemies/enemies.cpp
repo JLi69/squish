@@ -6,7 +6,7 @@ void Enemy::initEnemy(int px, int py, const std::string &texId, float scale) {
 	x = px;
 	y = py;
 
-	default_offset = DEFAULT_ENEMY_OFFSET;
+	default_offset = enemies::DEFAULT_ENEMY_OFFSET;
 	default_scale = scale;
 
 	sprite = Sprite(texId, glm::vec2(0.0f, 0.0f));
@@ -48,6 +48,7 @@ void Enemy::update(float dt) {
 void Enemy::moveEnemy(Level &level) {
 	if(!level.getWallTile(x + dirx, y + diry).isEmpty() || level.isBlocked(x + dirx, y + diry))
 		return;
+	currentStep++;
 	glm::vec2 displayPos = getDisplayPos();
 	x += dirx;
 	y += diry;
